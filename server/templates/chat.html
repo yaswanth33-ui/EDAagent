@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="flex h-[600px] bg-white shadow-lg rounded-xl overflow-hidden">
+<div class="flex h-screen bg-white shadow-lg rounded-xl overflow-hidden">
     <!-- Sidebar -->
     <div id="sidebar" class="w-64 border-r border-gray-200 bg-gray-50 flex flex-col transition-all duration-300 ease-in-out">
         <!-- Sidebar Header -->
@@ -620,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* Add these styles to your existing styles */
 @media (max-width: 1024px) {
     #sidebar {
-        position: absolute;
+        position: fixed;
         left: 0;
         top: 0;
         bottom: 0;
@@ -637,6 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* Add smooth transitions for sidebar elements */
 #sidebar {
     transition: width 0.3s ease-in-out;
+    height: 100vh;
 }
 
 .sidebar-text {
@@ -666,6 +667,8 @@ document.addEventListener('DOMContentLoaded', () => {
 .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+    height: calc(100vh - 180px); /* Adjust based on header and input height */
+    overflow-y: auto;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -695,6 +698,8 @@ document.addEventListener('DOMContentLoaded', () => {
 #sessionsList {
     scrollbar-width: thin;
     scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+    height: calc(100vh - 140px); /* Adjust based on header and new chat button height */
+    overflow-y: auto;
 }
 
 #sessionsList::-webkit-scrollbar {
@@ -725,7 +730,8 @@ document.addEventListener('DOMContentLoaded', () => {
     scrollbar-width: thin;
     scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
     padding-right: 4px;
-    overflow-y: overlay;
+    overflow-y: auto;
+    height: calc(100vh - 180px); /* Adjust based on header and input height */
 }
 
 #chatMessages::-webkit-scrollbar {
