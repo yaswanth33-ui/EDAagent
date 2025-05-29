@@ -133,43 +133,58 @@ document.addEventListener('DOMContentLoaded', () => {
     let dfContext = '';
     let currentSessionId = null;
 
-    // Load chat sessions
+    // Load chat sessions with debouncing
+    let loadSessionsTimeout;
     async function loadChatSessions() {
-        try {
-            const response = await fetch('/chat/sessions');
-            const data = await response.json();
-            
-            if (response.ok) {
-                sessionsList.innerHTML = '';
-                
-                if (data.sessions && data.sessions.length > 0) {
-                    data.sessions.forEach(session => {
-                        const sessionElement = createSessionElement(session);
-                        sessionsList.appendChild(sessionElement);
-                    });
-                } else {
-                    // Show empty state
+        // Clear any pending timeout
+        if (loadSessionsTimeout) {
+            clearTimeout(loadSessionsTimeout);
+        }
+
+        // Set a new timeout
+        return new Promise((resolve) => {
+            loadSessionsTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch('/chat/sessions');
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        sessionsList.innerHTML = '';
+                        
+                        if (data.sessions && data.sessions.length > 0) {
+                            // Create document fragment for better performance
+                            const fragment = document.createDocumentFragment();
+                            data.sessions.forEach(session => {
+                                const sessionElement = createSessionElement(session);
+                                fragment.appendChild(sessionElement);
+                            });
+                            sessionsList.appendChild(fragment);
+                        } else {
+                            // Show empty state
+                            sessionsList.innerHTML = `
+                                <div class="p-4 text-center text-gray-500">
+                                    <i class="fas fa-comments text-2xl mb-2"></i>
+                                    <p>No chat sessions yet</p>
+                                    <p class="text-sm mt-1">Start a new chat to begin</p>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        throw new Error(data.error || 'Failed to load sessions');
+                    }
+                } catch (error) {
+                    console.error('Error loading chat sessions:', error);
                     sessionsList.innerHTML = `
-                        <div class="p-4 text-center text-gray-500">
-                            <i class="fas fa-comments text-2xl mb-2"></i>
-                            <p>No chat sessions yet</p>
-                            <p class="text-sm mt-1">Start a new chat to begin</p>
+                        <div class="p-4 text-center text-red-500">
+                            <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+                            <p>Failed to load sessions</p>
+                            <p class="text-sm mt-1">Please try again later</p>
                         </div>
                     `;
                 }
-            } else {
-                throw new Error(data.error || 'Failed to load sessions');
-            }
-        } catch (error) {
-            console.error('Error loading chat sessions:', error);
-            sessionsList.innerHTML = `
-                <div class="p-4 text-center text-red-500">
-                    <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
-                    <p>Failed to load sessions</p>
-                    <p class="text-sm mt-1">Please try again later</p>
-                </div>
-            `;
-        }
+                resolve();
+            }, 100); // Debounce for 100ms
+        });
     }
 
     // Load chat history for a session
@@ -199,6 +214,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle new chat button
     newChatBtn.addEventListener('click', async () => {
         try {
+            // Disable button and show loading state
+            newChatBtn.disabled = true;
+            newChatBtn.innerHTML = `
+                <div class="flex items-center">
+                    <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                    <span>Creating...</span>
+                </div>
+            `;
+
+            // Clear current chat immediately
+            chatMessages.innerHTML = '';
+            addMessage('assistant', 'Hello! I\'m your AI assistant. How can I help you today?');
+
+            // Create new session in parallel with UI updates
             const response = await fetch('/chat', {
                 method: 'POST',
                 headers: {
@@ -214,15 +243,21 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (response.ok) {
                 currentSessionId = data.session_id;
-                await loadChatSessions();
-                chatMessages.innerHTML = '';
-                addMessage('assistant', 'Hello! I\'m your AI assistant. How can I help you today?');
+                // Load sessions in the background
+                loadChatSessions().catch(console.error);
             } else {
                 throw new Error(data.error || 'Failed to create new chat');
             }
         } catch (error) {
             console.error('Error creating new chat:', error);
             addMessage('error', 'Failed to create new chat. Please try again.');
+        } finally {
+            // Reset button state
+            newChatBtn.disabled = false;
+            newChatBtn.innerHTML = `
+                <i class="fas fa-plus mr-2"></i>
+                <span>New Chat</span>
+            `;
         }
     });
 
@@ -285,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Optimize message rendering
     function addMessage(role, content) {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'flex items-start space-x-4 max-w-3xl mx-auto';
@@ -294,40 +330,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageBg = role === 'user' ? 'bg-blue-500 text-white rounded-2xl rounded-tr-none' : 'bg-white rounded-2xl rounded-tl-none';
         const messagePosition = role === 'user' ? 'ml-auto' : '';
         
-        // Convert markdown-like formatting to HTML with enhanced styling
-        const formattedContent = content
-            // Headers
-            .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold mt-4 mb-2 text-blue-600">$1</h2>')
-            .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-3 mb-2 text-gray-700">$1</h3>')
-            
-            // Bold and italic
-            .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-800">$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
-            
-            // Code blocks with syntax highlighting
-            .replace(/```python\n(.*?)```/gs, '<pre class="bg-gray-800 text-gray-100 p-4 rounded-lg mt-2 mb-2 overflow-x-auto text-sm font-mono"><code>$1</code></pre>')
-            .replace(/```(.*?)```/gs, '<pre class="bg-gray-100 p-4 rounded-lg mt-2 mb-2 overflow-x-auto text-sm font-mono"><code>$1</code></pre>')
-            
-            // Inline code
-            .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800">$1</code>')
-            
-            // Lists
-            .replace(/^\s*[-*+]\s+(.*$)/gm, '<li class="ml-4 text-gray-700">$1</li>')
-            .replace(/(<li>.*<\/li>)/gs, '<ul class="list-disc my-2 space-y-1">$1</ul>')
-            
-            // Tables
-            .replace(/\|(.*)\|/g, (match) => {
-                const cells = match.split('|').filter(cell => cell.trim());
-                return `<td class="border px-3 py-2 text-gray-700">${cells.join('</td><td class="border px-3 py-2 text-gray-700">')}</td>`;
-            })
-            .replace(/(<td>.*<\/td>)/gs, '<tr class="hover:bg-gray-50">$1</tr>')
-            .replace(/(<tr>.*<\/tr>)/gs, '<table class="border-collapse my-4 w-full">$1</table>')
-            
-            // Horizontal rules
-            .replace(/^---$/gm, '<hr class="my-6 border-gray-300">')
-            
-            // Line breaks
-            .replace(/\n/g, '<br>');
+        // Use a more efficient way to format content
+        const formattedContent = formatMessageContent(content);
         
         const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
@@ -347,8 +351,65 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Use requestAnimationFrame for smoother rendering
+        requestAnimationFrame(() => {
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+    }
+
+    // Separate content formatting function for better performance
+    function formatMessageContent(content) {
+        // Cache regex patterns
+        const patterns = {
+            headers: {
+                h2: /^## (.*$)/gm,
+                h3: /^### (.*$)/gm
+            },
+            formatting: {
+                bold: /\*\*(.*?)\*\*/g,
+                italic: /\*(.*?)\*/g
+            },
+            code: {
+                python: /```python\n(.*?)```/gs,
+                generic: /```(.*?)```/gs,
+                inline: /`(.*?)`/g
+            },
+            lists: /^\s*[-*+]\s+(.*$)/gm,
+            tables: /\|(.*)\|/g,
+            horizontalRule: /^---$/gm,
+            lineBreaks: /\n/g
+        };
+
+        return content
+            // Headers
+            .replace(patterns.headers.h2, '<h2 class="text-xl font-bold mt-4 mb-2 text-blue-600">$1</h2>')
+            .replace(patterns.headers.h3, '<h3 class="text-lg font-semibold mt-3 mb-2 text-gray-700">$1</h3>')
+            
+            // Bold and italic
+            .replace(patterns.formatting.bold, '<strong class="font-bold text-gray-800">$1</strong>')
+            .replace(patterns.formatting.italic, '<em class="italic text-gray-700">$1</em>')
+            
+            // Code blocks
+            .replace(patterns.code.python, '<pre class="bg-gray-800 text-gray-100 p-4 rounded-lg mt-2 mb-2 overflow-x-auto text-sm font-mono"><code>$1</code></pre>')
+            .replace(patterns.code.generic, '<pre class="bg-gray-100 p-4 rounded-lg mt-2 mb-2 overflow-x-auto text-sm font-mono"><code>$1</code></pre>')
+            .replace(patterns.code.inline, '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800">$1</code>')
+            
+            // Lists
+            .replace(patterns.lists, '<li class="ml-4 text-gray-700">$1</li>')
+            .replace(/(<li>.*<\/li>)/gs, '<ul class="list-disc my-2 space-y-1">$1</ul>')
+            
+            // Tables
+            .replace(patterns.tables, (match) => {
+                const cells = match.split('|').filter(cell => cell.trim());
+                return `<td class="border px-3 py-2 text-gray-700">${cells.join('</td><td class="border px-3 py-2 text-gray-700">')}</td>`;
+            })
+            .replace(/(<td>.*<\/td>)/gs, '<tr class="hover:bg-gray-50">$1</tr>')
+            .replace(/(<tr>.*<\/tr>)/gs, '<table class="border-collapse my-4 w-full">$1</table>')
+            
+            // Horizontal rules and line breaks
+            .replace(patterns.horizontalRule, '<hr class="my-6 border-gray-300">')
+            .replace(patterns.lineBreaks, '<br>');
     }
 
     // Add sidebar toggle functionality
