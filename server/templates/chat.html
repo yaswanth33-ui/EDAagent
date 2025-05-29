@@ -1,0 +1,912 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex h-[600px] bg-white shadow-lg rounded-xl overflow-hidden">
+    <!-- Sidebar -->
+    <div id="sidebar" class="w-64 border-r border-gray-200 bg-gray-50 flex flex-col transition-all duration-300 ease-in-out">
+        <!-- Sidebar Header -->
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-comments text-blue-500 mr-2"></i>
+                <span class="sidebar-text">Chat Sessions</span>
+            </h2>
+            <button id="toggleSidebar" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                <i class="fas fa-chevron-left transition-transform duration-300"></i>
+            </button>
+        </div>
+        
+        <!-- New Chat Button -->
+        <div class="p-4 sidebar-text">
+            <button id="newChatBtn" class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
+                <i class="fas fa-plus mr-2"></i>
+                <span>New Chat</span>
+            </button>
+        </div>
+        
+        <!-- Sessions List -->
+        <div id="sessionsList" class="flex-1 overflow-y-auto p-2 space-y-1">
+            <!-- Sessions will be populated here -->
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="flex-1 flex flex-col bg-gray-50">
+        <!-- Chat Header -->
+        <div class="border-b bg-white p-4 shadow-sm">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <button id="toggleSidebarMobile" class="mr-4 text-gray-500 hover:text-gray-700 focus:outline-none lg:hidden">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-robot text-blue-500 mr-2"></i>
+                            AI Assistant
+                        </h1>
+                        <p class="text-gray-600 mt-1" id="chatMode">General Chat Mode</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+            <div class="flex items-start space-x-4 max-w-3xl mx-auto">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shadow-md">
+                        <i class="fas fa-robot text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100">
+                        <p class="text-gray-800">Hello! I'm your AI assistant. I can help you with general questions or analyze your data. Upload a file on the home page to switch to data analysis mode.</p>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1 ml-1">Just now</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="hidden p-4">
+            <div class="flex items-start space-x-4 max-w-3xl mx-auto">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shadow-md">
+                        <i class="fas fa-robot text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100">
+                        <div class="flex space-x-2">
+                            <div class="animate-bounce">
+                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
+                            </div>
+                            <div class="animate-bounce delay-100">
+                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
+                            </div>
+                            <div class="animate-bounce delay-200">
+                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Input -->
+        <div class="border-t bg-white p-4 shadow-lg">
+            <form id="chatForm" class="max-w-3xl mx-auto">
+                <div class="flex space-x-4">
+                    <div class="flex-1 relative">
+                        <input type="text" id="messageInput" 
+                               class="w-full rounded-2xl border border-gray-200 pl-4 pr-12 py-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                               placeholder="Type your message..."
+                               autocomplete="off">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i class="fas fa-paper-plane text-gray-400"></i>
+                        </div>
+                    </div>
+                    <button type="submit" 
+                            class="bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600 transition-all duration-200 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <span>Send</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const chatMessages = document.getElementById('chatMessages');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const chatMode = document.getElementById('chatMode');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const sidebar = document.getElementById('sidebar');
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const toggleSidebarMobile = document.getElementById('toggleSidebarMobile');
+    const sidebarTexts = document.querySelectorAll('.sidebar-text');
+    const chevronIcon = toggleSidebar.querySelector('i');
+    const sessionsList = document.getElementById('sessionsList');
+    let dfContext = '';
+    let currentSessionId = null;
+
+    // Load chat sessions
+    async function loadChatSessions() {
+        try {
+            const response = await fetch('/chat/sessions');
+            const data = await response.json();
+            
+            if (response.ok) {
+                sessionsList.innerHTML = '';
+                
+                if (data.sessions && data.sessions.length > 0) {
+                    data.sessions.forEach(session => {
+                        const sessionElement = createSessionElement(session);
+                        sessionsList.appendChild(sessionElement);
+                    });
+                } else {
+                    // Show empty state
+                    sessionsList.innerHTML = `
+                        <div class="p-4 text-center text-gray-500">
+                            <i class="fas fa-comments text-2xl mb-2"></i>
+                            <p>No chat sessions yet</p>
+                            <p class="text-sm mt-1">Start a new chat to begin</p>
+                        </div>
+                    `;
+                }
+            } else {
+                throw new Error(data.error || 'Failed to load sessions');
+            }
+        } catch (error) {
+            console.error('Error loading chat sessions:', error);
+            sessionsList.innerHTML = `
+                <div class="p-4 text-center text-red-500">
+                    <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+                    <p>Failed to load sessions</p>
+                    <p class="text-sm mt-1">Please try again later</p>
+                </div>
+            `;
+        }
+    }
+
+    // Load chat history for a session
+    async function loadChatHistory(sessionId) {
+        try {
+            const response = await fetch(`/chat/sessions/${sessionId}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                chatMessages.innerHTML = '';
+                if (data.messages && data.messages.length > 0) {
+                    data.messages.forEach(message => {
+                        addMessage(message.role, message.content);
+                    });
+                } else {
+                    addMessage('assistant', 'Hello! I\'m your AI assistant. How can I help you today?');
+                }
+            } else {
+                throw new Error(data.error || 'Failed to load chat history');
+            }
+        } catch (error) {
+            console.error('Error loading chat history:', error);
+            addMessage('error', 'Failed to load chat history. Please try again.');
+        }
+    }
+
+    // Handle new chat button
+    newChatBtn.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: 'Hello',
+                    df_context: dfContext
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                currentSessionId = data.session_id;
+                await loadChatSessions();
+                chatMessages.innerHTML = '';
+                addMessage('assistant', 'Hello! I\'m your AI assistant. How can I help you today?');
+            } else {
+                throw new Error(data.error || 'Failed to create new chat');
+            }
+        } catch (error) {
+            console.error('Error creating new chat:', error);
+            addMessage('error', 'Failed to create new chat. Please try again.');
+        }
+    });
+
+    // Check if we have data from the home page
+    const storedContext = localStorage.getItem('df_context');
+    if (storedContext) {
+        dfContext = storedContext;
+        chatMode.textContent = 'Data Analysis Mode';
+        messageInput.placeholder = 'Ask about your data...';
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        
+        if (!message) return;
+        
+        // Add user message to chat
+        addMessage('user', message);
+        messageInput.value = '';
+        messageInput.disabled = true;
+        chatForm.querySelector('button').disabled = true;
+
+        // Show loading indicator
+        loadingIndicator.classList.remove('hidden');
+
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    df_context: dfContext,
+                    session_id: currentSessionId
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                addMessage('assistant', data.response);
+                if (!currentSessionId) {
+                    currentSessionId = data.session_id;
+                    await loadChatSessions();
+                }
+            } else {
+                throw new Error(data.error || 'An error occurred');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            addMessage('error', error.message || 'An error occurred while processing your request');
+        } finally {
+            // Hide loading indicator and re-enable input
+            loadingIndicator.classList.add('hidden');
+            messageInput.disabled = false;
+            chatForm.querySelector('button').disabled = false;
+            messageInput.focus();
+        }
+    });
+
+    function addMessage(role, content) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex items-start space-x-4 max-w-3xl mx-auto';
+        
+        const icon = role === 'user' ? 'user' : 'robot';
+        const iconBg = role === 'user' ? 'bg-blue-500' : 'bg-blue-500';
+        const messageBg = role === 'user' ? 'bg-blue-500 text-white rounded-2xl rounded-tr-none' : 'bg-white rounded-2xl rounded-tl-none';
+        const messagePosition = role === 'user' ? 'ml-auto' : '';
+        
+        // Convert markdown-like formatting to HTML with enhanced styling
+        const formattedContent = content
+            // Headers
+            .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold mt-4 mb-2 text-blue-600">$1</h2>')
+            .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-3 mb-2 text-gray-700">$1</h3>')
+            
+            // Bold and italic
+            .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-800">$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
+            
+            // Code blocks with syntax highlighting
+            .replace(/```python\n(.*?)```/gs, '<pre class="bg-gray-800 text-gray-100 p-4 rounded-lg mt-2 mb-2 overflow-x-auto text-sm font-mono"><code>$1</code></pre>')
+            .replace(/```(.*?)```/gs, '<pre class="bg-gray-100 p-4 rounded-lg mt-2 mb-2 overflow-x-auto text-sm font-mono"><code>$1</code></pre>')
+            
+            // Inline code
+            .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800">$1</code>')
+            
+            // Lists
+            .replace(/^\s*[-*+]\s+(.*$)/gm, '<li class="ml-4 text-gray-700">$1</li>')
+            .replace(/(<li>.*<\/li>)/gs, '<ul class="list-disc my-2 space-y-1">$1</ul>')
+            
+            // Tables
+            .replace(/\|(.*)\|/g, (match) => {
+                const cells = match.split('|').filter(cell => cell.trim());
+                return `<td class="border px-3 py-2 text-gray-700">${cells.join('</td><td class="border px-3 py-2 text-gray-700">')}</td>`;
+            })
+            .replace(/(<td>.*<\/td>)/gs, '<tr class="hover:bg-gray-50">$1</tr>')
+            .replace(/(<tr>.*<\/tr>)/gs, '<table class="border-collapse my-4 w-full">$1</table>')
+            
+            // Horizontal rules
+            .replace(/^---$/gm, '<hr class="my-6 border-gray-300">')
+            
+            // Line breaks
+            .replace(/\n/g, '<br>');
+        
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-full ${iconBg} flex items-center justify-center shadow-md">
+                    <i class="fas fa-${icon} text-white text-lg"></i>
+                </div>
+            </div>
+            <div class="flex-1 ${messagePosition}">
+                <div class="${messageBg} p-4 shadow-sm border border-gray-100">
+                    <div class="prose prose-sm max-w-none">
+                        ${formattedContent}
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1 ml-1">${timestamp}</p>
+            </div>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Add sidebar toggle functionality
+    function toggleSidebarState() {
+        const isCollapsed = sidebar.classList.contains('w-16');
+        
+        if (isCollapsed) {
+            // Expand
+            sidebar.classList.remove('w-16');
+            sidebar.classList.add('w-64');
+            chevronIcon.classList.remove('rotate-180');
+            sidebarTexts.forEach(text => text.classList.remove('hidden'));
+        } else {
+            // Collapse
+            sidebar.classList.remove('w-64');
+            sidebar.classList.add('w-16');
+            chevronIcon.classList.add('rotate-180');
+            sidebarTexts.forEach(text => text.classList.add('hidden'));
+        }
+    }
+
+    // Toggle sidebar on button click
+    toggleSidebar.addEventListener('click', toggleSidebarState);
+    
+    // Toggle sidebar on mobile
+    toggleSidebarMobile.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+    });
+
+    // Format date for session display
+    function formatSessionDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = now - date;
+        
+        // If less than 24 hours ago, show relative time
+        if (diff < 24 * 60 * 60 * 1000) {
+            if (diff < 60 * 60 * 1000) {
+                const minutes = Math.floor(diff / (60 * 1000));
+                return `${minutes}m ago`;
+            } else {
+                const hours = Math.floor(diff / (60 * 60 * 1000));
+                return `${hours}h ago`;
+            }
+        }
+        
+        // If less than 7 days ago, show day name
+        if (diff < 7 * 24 * 60 * 60 * 1000) {
+            return date.toLocaleDateString('en-US', { weekday: 'short' });
+        }
+        
+        // Otherwise show date
+        return date.toLocaleDateString('en-US', { 
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    // Create session element with improved styling
+    function createSessionElement(session) {
+        const div = document.createElement('div');
+        const isActive = currentSessionId === session.id;
+        
+        div.className = `group p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+            isActive 
+                ? 'bg-blue-50 border border-blue-200' 
+                : 'hover:bg-gray-100 border border-transparent'
+        }`;
+        div.setAttribute('data-session-id', session.id);
+        
+        const formattedDate = formatSessionDate(session.created_at);
+        const sessionName = session.name || `Chat ${session.id}`;
+        
+        div.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center space-x-2">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-comment text-blue-500"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">${sessionName}</p>
+                            <p class="text-xs text-gray-500">${formattedDate}</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="delete-session ml-2 text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        `;
+
+        // Add click handler for session selection
+        div.addEventListener('click', (e) => {
+            if (!e.target.closest('.delete-session')) {
+                selectSession(session.id);
+                // On mobile, hide sidebar after selection
+                if (window.innerWidth < 1024) {
+                    sidebar.classList.add('hidden');
+                }
+            }
+        });
+
+        // Add click handler for delete button
+        const deleteBtn = div.querySelector('.delete-session');
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showDeleteModal(session);
+        });
+
+        return div;
+    }
+
+    // Add window resize handler for responsive behavior
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+            sidebar.classList.remove('hidden');
+        }
+    });
+
+    // Select a chat session
+    async function selectSession(sessionId) {
+        currentSessionId = sessionId;
+        await loadChatHistory(sessionId);
+        
+        // Update active state in sidebar
+        const sessions = sessionsList.querySelectorAll('div[data-session-id]');
+        sessions.forEach(session => {
+            if (session.dataset.sessionId === sessionId.toString()) {
+                session.classList.add('bg-blue-50', 'border-blue-200');
+                session.classList.remove('hover:bg-gray-100', 'border-transparent');
+            } else {
+                session.classList.remove('bg-blue-50', 'border-blue-200');
+                session.classList.add('hover:bg-gray-100', 'border-transparent');
+            }
+        });
+    }
+
+    // Show delete confirmation modal
+    function showDeleteModal(session) {
+        // Remove existing modal if it exists
+        const existingModal = document.getElementById('deleteModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Create new modal
+        const modal = document.createElement('div');
+        modal.id = 'deleteModal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 transform transition-all">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Delete Chat Session</h3>
+                    <p class="text-sm text-gray-500 mb-4">Are you sure you want to delete this chat session? This action cannot be undone.</p>
+                    <div class="flex justify-center space-x-4">
+                        <button class="cancel-delete px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            Cancel
+                        </button>
+                        <button class="confirm-delete px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Add event listeners
+        const cancelBtn = modal.querySelector('.cancel-delete');
+        const confirmBtn = modal.querySelector('.confirm-delete');
+
+        const handleCancel = () => {
+            modal.remove();
+        };
+
+        const handleConfirm = async () => {
+            try {
+                const response = await fetch(`/chat/sessions/${session.id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // Remove session from sidebar
+                    const sessionElement = sessionsList.querySelector(`div[data-session-id="${session.id}"]`);
+                    if (sessionElement) {
+                        sessionElement.remove();
+                    }
+                    
+                    // If this was the current session, clear the chat
+                    if (currentSessionId === session.id) {
+                        currentSessionId = null;
+                        chatMessages.innerHTML = '';
+                        addMessage('assistant', 'Hello! I\'m your AI assistant. How can I help you today?');
+                    }
+                    
+                    // Show success message
+                    showNotification('Chat session deleted successfully', 'success');
+                } else {
+                    throw new Error('Failed to delete chat session');
+                }
+            } catch (error) {
+                console.error('Error deleting chat session:', error);
+                showNotification('Failed to delete chat session', 'error');
+            }
+            
+            modal.remove();
+        };
+
+        cancelBtn.addEventListener('click', handleCancel);
+        confirmBtn.addEventListener('click', handleConfirm);
+
+        // Add click outside to close
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                handleCancel();
+            }
+        });
+
+        // Add escape key to close
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                handleCancel();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+    }
+
+    // Show notification helper function
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 translate-y-full opacity-0 ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        } text-white`;
+        
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        requestAnimationFrame(() => {
+            notification.classList.remove('translate-y-full', 'opacity-0');
+        });
+        
+        // Animate out and remove
+        setTimeout(() => {
+            notification.classList.add('translate-y-full', 'opacity-0');
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
+    }
+
+    // Load initial chat sessions
+    loadChatSessions();
+});
+</script>
+
+<style>
+/* Add these styles to your existing styles */
+@media (max-width: 1024px) {
+    #sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 40;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    #sidebar:not(.hidden) {
+        transform: translateX(0);
+    }
+}
+
+/* Add smooth transitions for sidebar elements */
+#sidebar {
+    transition: width 0.3s ease-in-out;
+}
+
+.sidebar-text {
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Ensure proper spacing in collapsed state */
+#sidebar.w-16 .p-4 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+#sidebar.w-16 #newChatBtn {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+#sidebar.w-16 #newChatBtn span {
+    display: none;
+}
+
+#sidebar.w-16 #newChatBtn i {
+    margin-right: 0;
+}
+
+/* Add new styles for chat interface */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.7);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+/* Sidebar specific scrollbar */
+#sessionsList {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+#sessionsList::-webkit-scrollbar {
+    width: 4px;
+}
+
+#sessionsList::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px;
+}
+
+#sessionsList::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 2px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s ease;
+}
+
+#sessionsList::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.7);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+/* Chat messages specific scrollbar */
+#chatMessages {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+    padding-right: 4px;
+    overflow-y: overlay;
+}
+
+#chatMessages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chatMessages::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px;
+}
+
+#chatMessages::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s ease;
+}
+
+#chatMessages::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.7);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+/* Add smooth scrolling behavior */
+#sessionsList, #chatMessages {
+    scroll-behavior: smooth;
+}
+
+/* Improve scrollbar visibility in dark mode */
+@media (prefers-color-scheme: dark) {
+    .custom-scrollbar::-webkit-scrollbar-thumb,
+    #sessionsList::-webkit-scrollbar-thumb,
+    #chatMessages::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.7);
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+    #sessionsList::-webkit-scrollbar-thumb:hover,
+    #chatMessages::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(156, 163, 175, 0.9);
+    }
+}
+
+/* Add hover effect to show scrollbar */
+#sessionsList:hover::-webkit-scrollbar-thumb,
+#chatMessages:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.7);
+}
+
+/* Add smooth transitions for messages */
+#chatMessages > div {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Improve input focus state */
+#messageInput:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Add hover effect for send button */
+#chatForm button:hover {
+    transform: translateY(-1px);
+}
+
+/* Improve message bubbles */
+#chatMessages .bg-white {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+#chatMessages .bg-blue-500 {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Add styles for session list */
+#sessionsList {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+#sessionsList::-webkit-scrollbar {
+    width: 4px;
+}
+
+#sessionsList::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px;
+}
+
+#sessionsList::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 2px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s ease;
+}
+
+#sessionsList::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.7);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+/* Session item styles */
+#sessionsList > div {
+    transition: all 0.2s ease;
+}
+
+#sessionsList > div:hover {
+    transform: translateX(2px);
+}
+
+/* Empty state styles */
+#sessionsList .text-center {
+    padding: 2rem 1rem;
+}
+
+#sessionsList .text-center i {
+    color: #9CA3AF;
+}
+
+/* Active session styles */
+#sessionsList > div.bg-blue-50 {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Delete button styles */
+.delete-session {
+    transition: all 0.2s ease;
+}
+
+.delete-session:hover {
+    transform: scale(1.1);
+}
+
+/* Add styles for delete modal */
+#deleteModal {
+    backdrop-filter: blur(4px);
+}
+
+#deleteModal > div {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Add styles for success/error messages */
+.fixed.bottom-4 {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+</style>
+{% endblock %} 
