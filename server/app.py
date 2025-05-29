@@ -14,7 +14,6 @@ from database import Database
 app = Flask(__name__)
 db = Database()
 
-# Handle graceful shutdown
 def cleanup():
     """Clean up resources before shutdown"""
     print("Cleaning up resources...")
