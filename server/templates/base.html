@@ -1,76 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="EDA Agent - Your intelligent data analysis assistant"
+    />
+    <meta name="author" content="Reality Org" />
+    <meta name="robots" content="index, follow" />
     <title>EDA Agent</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .hover-scale {
-            transition: transform 0.2s;
-        }
-        .hover-scale:hover {
-            transform: scale(1.02);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
+      .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .hover-scale {
+        transition: transform 0.2s;
+      }
+      .hover-scale:hover {
+        transform: scale(1.02);
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
     </style>
-</head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+  </head>
+  <body class="bg-gray-50 min-h-screen flex flex-col">
     <nav class="gradient-bg text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 flex items-center">
-                        <i class="fas fa-chart-line text-2xl mr-2"></i>
-                        <a href="/" class="text-xl font-bold">EDA Agent</a>
-                    </div>
-                    <div class="hidden md:ml-6 md:flex md:space-x-8">
-                        <a href="/" class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-colors">
-                            <i class="fas fa-home mr-2"></i>Home
-                        </a>
-                        <a href="/history" class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-colors">
-                            <i class="fas fa-history mr-2"></i>History
-                        </a>
-                        <a href="/chat" class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-colors">
-                            <i class="fas fa-message mr-2"></i>Chat
-                        </a>
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    <a href="https://github.com/yaswanth33-ui/EDAagent.git" target="_blank" class="text-white hover:text-gray-200 transition-colors">
-                        <i class="fab fa-github text-xl"></i>
-                    </a>
-                </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 flex items-center">
+              <i class="fas fa-chart-line text-2xl mr-2"></i>
+              <a href="/" class="text-xl font-bold">EDA Agent</a>
             </div>
+            <div class="hidden md:ml-6 md:flex md:space-x-8">
+              <a
+                href="/"
+                class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-colors"
+              >
+                <i class="fas fa-home mr-2"></i>Home
+              </a>
+              <a
+                href="/history"
+                class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-colors"
+              >
+                <i class="fas fa-history mr-2"></i>History
+              </a>
+              <a
+                href="/chat"
+                class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-colors"
+              >
+                <i class="fas fa-message mr-2"></i>Chat
+              </a>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <a
+              href="https://github.com/yaswanth33-ui/EDAagent.git"
+              target="_blank"
+              class="text-white hover:text-gray-200 transition-colors"
+            >
+              <i class="fab fa-github text-xl"></i>
+            </a>
+          </div>
         </div>
+      </div>
     </nav>
 
     <main class="flex-grow max-w-7xl w-full mx-auto py-6 sm:px-6 lg:px-8">
-        {% block content %}{% endblock %}
+      {% block content %}{% endblock %}
     </main>
 
     <footer class="bg-white shadow-lg mt-8">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-gray-500 text-sm">
-                © 2025 EDA Agent. All rights reserved. • Powered by Reality Org.
-            </p>
-        </div>
+      <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-gray-500 text-sm">
+          © 2025 EDA Agent. All rights reserved. • Powered by Reality Org.
+        </p>
+      </div>
     </footer>
-</body>
-</html> 
+  </body>
+</html>

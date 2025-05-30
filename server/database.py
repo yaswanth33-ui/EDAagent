@@ -3,6 +3,11 @@ import json
 import os
 from datetime import datetime
 import pandas as pd
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class Database:
     def __init__(self, db_path='eda_agent.db'):
@@ -90,9 +95,6 @@ class Database:
             
             analysis_id = cursor.lastrowid
 
-            # Debug print
-            print("Saving visualizations:", visualizations)
-
             # Save visualizations with base64 encoded image data
             for viz in visualizations:
                 cursor.execute('''
@@ -108,8 +110,8 @@ class Database:
             conn.commit()
             return analysis_id
         except Exception as e:
-            print(f"Error in save_analysis: {str(e)}")
             conn.rollback()
+            logger.error(f"Error in save_analysis: {str(e)}")
             raise e
         finally:
             conn.close()
@@ -136,9 +138,6 @@ class Database:
             ''', (analysis_id,))
             visualizations = cursor.fetchall()
 
-            # Debug print
-            print("Retrieved visualizations:", visualizations)
-
             return {
                 'id': analysis[0],
                 'filename': analysis[1],
@@ -159,7 +158,7 @@ class Database:
                 ]
             }
         except Exception as e:
-            print(f"Error in get_analysis: {str(e)}")
+            logger.error(f"Error in get_analysis: {str(e)}")
             raise
         finally:
             conn.close()
@@ -194,6 +193,7 @@ class Database:
             return session_id
         except Exception as e:
             conn.rollback()
+            logger.error(f"Error in create_chat_session: {str(e)}")
             raise e
         finally:
             conn.close()
@@ -212,6 +212,7 @@ class Database:
             conn.commit()
         except Exception as e:
             conn.rollback()
+            logger.error(f"Error in save_chat_message: {str(e)}")
             raise e
         finally:
             conn.close()
@@ -231,6 +232,7 @@ class Database:
             
             return cursor.fetchall()
         except Exception as e:
+            logger.error(f"Error in get_chat_history: {str(e)}")
             raise e
         finally:
             conn.close()
@@ -249,6 +251,7 @@ class Database:
             
             return cursor.fetchall()
         except Exception as e:
+            logger.error(f"Error in get_all_chat_sessions: {str(e)}")
             raise e
         finally:
             conn.close()
@@ -275,7 +278,7 @@ class Database:
             return True
         except Exception as e:
             conn.rollback()
-            print(f"Error deleting chat session: {e}")
+            logger.error(f"Error deleting chat session: {str(e)}")
             return False
         finally:
             conn.close()
@@ -288,7 +291,7 @@ class Database:
         try:
             # Get old visualizations
             cursor.execute('''
-            SELECT v.path 
+            SELECT v.image_data 
             FROM visualizations v
             JOIN analysis_results a ON v.analysis_id = a.id
             WHERE a.created_at < datetime('now', ?)
@@ -297,12 +300,12 @@ class Database:
             old_files = cursor.fetchall()
 
             # Delete old files
-            for file_path in old_files:
+            for file_data in old_files:
                 try:
-                    if os.path.exists(file_path[0]):
-                        os.remove(file_path[0])
+                    if os.path.exists(file_data[0]):
+                        os.remove(file_data[0])
                 except Exception as e:
-                    print(f"Error deleting file {file_path[0]}: {e}")
+                    logger.error(f"Error deleting file {file_data[0]}: {str(e)}")
 
             # Delete old chat messages
             cursor.execute('''
@@ -337,6 +340,7 @@ class Database:
             conn.commit()
         except Exception as e:
             conn.rollback()
+            logger.error(f"Error in cleanup_old_files: {str(e)}")
             raise e
         finally:
             conn.close()
@@ -349,7 +353,7 @@ class Database:
         try:
             # First, get the visualization paths
             cursor.execute('''
-            SELECT path FROM visualizations 
+            SELECT image_data FROM visualizations 
             WHERE analysis_id = ?
             ''', (analysis_id,))
             
@@ -361,7 +365,7 @@ class Database:
                     if os.path.exists(path[0]):
                         os.remove(path[0])
                 except Exception as e:
-                    print(f"Error deleting file {path[0]}: {e}")
+                    logger.error(f"Error deleting file {path[0]}: {str(e)}")
             
             # Delete from visualizations
             cursor.execute('''
@@ -380,7 +384,31 @@ class Database:
             
         except Exception as e:
             conn.rollback()
-            print(f"Error deleting analysis: {e}")
+            logger.error(f"Error deleting analysis: {str(e)}")
             return False
         finally:
-            conn.close() 
+            conn.close()
+
+    def __enter__(self):
+        self.conn = sqlite3.connect(self.db_path)
+        return self.conn
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.conn:
+            if exc_type is None:
+                self.conn.commit()
+            self.conn.close()
+
+    def execute_query(self, query, params=None):
+        """Execute a query with optional parameters."""
+        try:
+            with self as conn:
+                cursor = conn.cursor()
+                if params:
+                    cursor.execute(query, params)
+                else:
+                    cursor.execute(query)
+                return cursor.fetchall()
+        except sqlite3.Error as e:
+            logger.error(f"Database error: {e}")
+            raise

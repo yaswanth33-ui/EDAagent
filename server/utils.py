@@ -8,20 +8,24 @@ import openrouter
 import requests
 import time
 import base64
+import logging
+
 matplotlib.use('Agg')
 
 
 MODEL = "deepseek/deepseek-chat-v3-0324:free"
 MODEL_AVAILABLE = True
 
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 try:
     if api_key:= os.environ.get("OPENROUTER_API_KEY"):
         openrouter.api_key = api_key
         MODEL_AVAILABLE = True
 except Exception as e:
-    print(f"Error configuring OpenRouter: {str(e)}")
-
-
+    logger.error(f"Error configuring OpenRouter: {str(e)}")
 
 def save_fig(fig):
     """Save matplotlib figure to a permanent location"""
@@ -46,7 +50,7 @@ def save_fig(fig):
         # Return both the path and base64 encoded image data
         return os.path.join('plots', filename), image_data
     except Exception as e:
-        print(f"Error saving figure: {str(e)}")
+        logger.error(f"Error saving figure: {str(e)}")
         return None, None
 
 def df_to_str(df, max_rows=5):
@@ -61,6 +65,7 @@ def df_to_str(df, max_rows=5):
         missing_info = "No missing values." if missing.empty else str(missing)
         return f"### Schema\n```\n{schema}```\n\n### Preview:\n{head}\n\n### Missing:\n{missing_info}"
     except Exception as e:
+        logger.error(f"Error generating dataframe summary: {str(e)}")
         return f"Error generating dataframe summary: {str(e)}"
 
 async def ai_text_analysis(prompt_type, df_context):
@@ -102,7 +107,7 @@ async def ai_text_analysis(prompt_type, df_context):
             return f"Error: {response.text}"
             
     except Exception as e:
-        print(f"Error in AI text analysis: {str(e)}")
+        logger.error(f"Error analyzing data: {str(e)}")
         return f"Error analyzing data: {str(e)}"
 
 async def ai_vision_analysis(img_paths):
@@ -140,7 +145,7 @@ async def ai_vision_analysis(img_paths):
                     results.append((title, "No response generated from the model."))
                     
         except Exception as e:
-            print(f"Error analyzing image {title}: {str(e)}")
+            logger.error(f"Error analyzing image: {str(e)}")
             results.append((title, f"Error analyzing image: {str(e)}"))
     
     return results
@@ -174,7 +179,6 @@ def generate_visuals(df):
                           if 1 < df[col].nunique() < 30 and df[col].notna().any()]
         
         if not numeric_cols and not categorical_cols:
-            print("No valid numeric or categorical columns found for visualization")
             return []
         
         # Limit the number of plots for better performance
@@ -217,7 +221,7 @@ def generate_visuals(df):
                     visualizations.append(('distribution', f'Box Plot of {col}', path, image_data))
                 plt.close()
             except Exception as e:
-                print(f"Error in distribution plots for {col}: {str(e)}")
+                logger.error(f"Error generating distribution plots for {col}: {str(e)}")
                 plt.close('all')
 
         # 2. Correlation Analysis (only if we have numeric columns)
@@ -235,7 +239,7 @@ def generate_visuals(df):
                     visualizations.append(('correlation', 'Correlation Heatmap', path, image_data))
                 plt.close()
             except Exception as e:
-                print(f"Error in correlation plots: {str(e)}")
+                logger.error(f"Error generating correlation heatmap: {str(e)}")
                 plt.close('all')
 
         # 3. Categorical Analysis (only for top categorical columns)
@@ -256,7 +260,7 @@ def generate_visuals(df):
                         visualizations.append(('categorical', f'Bar Plot of {col}', path, image_data))
                 plt.close()
             except Exception as e:
-                print(f"Error in categorical plots for {col}: {str(e)}")
+                logger.error(f"Error generating categorical plots for {col}: {str(e)}")
                 plt.close('all')
 
         # 4. Relationship Analysis (only for top numeric columns)
@@ -275,12 +279,12 @@ def generate_visuals(df):
                         visualizations.append(('relationship', f'Scatter Plot: {numeric_cols[0]} vs {numeric_cols[1]}', path, image_data))
                     plt.close()
             except Exception as e:
-                print(f"Error in relationship plots: {str(e)}")
+                logger.error(f"Error generating relationship plots: {str(e)}")
                 plt.close('all')
 
         return visualizations
     except Exception as e:
-        print(f"Error in generate_visuals: {str(e)}")
+        logger.error(f"Error generating visualizations: {str(e)}")
         plt.close('all')
         return []
 
@@ -315,6 +319,7 @@ def get_statistical_summary(df):
             'categorical': categorical_summary
         }
     except Exception as e:
+        logger.error(f"Error generating statistical summary: {str(e)}")
         return {'error': str(e)}
 
 def detect_anomalies(df):
@@ -334,6 +339,7 @@ def detect_anomalies(df):
             }
         return anomalies
     except Exception as e:
+        logger.error(f"Error detecting anomalies: {str(e)}")
         return {'error': str(e)}
 
 def get_cleaning_suggestions(df):
@@ -380,7 +386,7 @@ async def cleanup(files):
             if os.path.exists(f):
                 os.remove(f)
         except Exception as e:
-            print(f"Error cleaning up file {f}: {str(e)}")
+            logger.error(f"Error cleaning up file {f}: {str(e)}")
 
 async def chat_with_dataset(query, df_context=None, conversation_history=None):
     """General chat system using OpenRouter with conversation history support"""
@@ -440,28 +446,26 @@ async def chat_with_dataset(query, df_context=None, conversation_history=None):
                     return response_content.strip()
                 else:
                     error_msg = result.get('error', {}).get('message', 'Unknown error')
-                    print(f"API Error: {error_msg}")
                     if attempt < max_retries - 1:
                         time.sleep(retry_delay)
                         continue
                     return "I apologize, but I couldn't generate a response. Please try again in a moment."
             else:
                 error_msg = response.text
-                print(f"HTTP Error {response.status_code}: {error_msg}")
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
                     continue
                 return f"Error: Unable to process your request. Please try again later."
                 
         except requests.exceptions.Timeout:
-            print(f"Request timed out on attempt {attempt + 1}")
+            pass
             if attempt < max_retries - 1:
                 time.sleep(retry_delay)
                 continue
             return "Request timed out. Please try again."
             
         except Exception as e:
-            print(f"Error on attempt {attempt + 1}: {str(e)}")
+            pass
             if attempt < max_retries - 1:
                 time.sleep(retry_delay)
                 continue

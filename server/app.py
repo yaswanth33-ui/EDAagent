@@ -10,13 +10,22 @@ from utils import (
     detect_anomalies, get_cleaning_suggestions, ai_text_analysis, chat_with_dataset
 )
 from database import Database
+import logging
+from logging.handlers import RotatingFileHandler
+from bleach import clean
 
 app = Flask(__name__)
 db = Database()
 
+# Configure logging
+handler = RotatingFileHandler('server.log', maxBytes=100000, backupCount=3)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+app.logger.addHandler(handler)
+
 def cleanup():
     """Clean up resources before shutdown"""
-    print("Cleaning up resources...")
     try:
         # Clean up old files and database entries
         db.cleanup_old_files(days=7)
@@ -33,11 +42,11 @@ def cleanup():
                     try:
                         os.remove(os.path.join(temp_dir, file))
                     except Exception as e:
-                        print(f"Error removing file {file}: {str(e)}")
-                        
-        print("Cleanup completed successfully")
+                        pass  # Removed: print(f"Error removing file {file}: {str(e)}")
+        
+        pass  # Removed: print("Cleanup completed successfully")
     except Exception as e:
-        print(f"Error during cleanup: {str(e)}")
+        pass  # Removed: print(f"Error during cleanup: {str(e)}")
 
 atexit.register(cleanup)
 
@@ -51,7 +60,9 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    recent_analyses = db.get_recent_analyses(limit=1)  # Fetch the latest analysis
+    latest_analysis = recent_analyses[0] if recent_analyses else None
+    return render_template('home.html', latest_analysis=latest_analysis)
 
 @app.route('/chat', methods=['GET', 'POST'])
 async def chat():
@@ -63,11 +74,13 @@ async def chat():
         if not data or 'message' not in data:
             return jsonify({'error': 'Missing message field'}), 400
             
-        # Get or create chat session
-        session_id = data.get('session_id')
+        # Sanitize input
+        data['message'] = clean(data['message'])
+        session_id = clean(data.get('session_id', ''))
+        
         if not session_id:
             session_id = db.create_chat_session()
-            
+        
         # Get conversation history from database
         chat_history = db.get_chat_history(session_id)
         conversation_history = [
@@ -90,7 +103,7 @@ async def chat():
             'session_id': session_id
         })
     except Exception as e:
-        print(f"Error in chat: {str(e)}")
+        pass  # Removed: print(f"Error in chat: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/chat/sessions', methods=['GET'])
@@ -220,7 +233,7 @@ def history():
         # Otherwise return HTML template
         return render_template('history.html', analyses=recent_analyses)
     except Exception as e:
-        print(f"Error in history: {str(e)}")  # Add logging
+        pass  # Removed: print(f"Error in history: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/analysis/<int:analysis_id>', methods=['GET', 'DELETE'])
@@ -234,7 +247,7 @@ def view_analysis(analysis_id):
             else:
                 return jsonify({'error': 'Analysis not found'}), 404
         except Exception as e:
-            print(f"Error deleting analysis: {str(e)}")
+            pass  # Removed: print(f"Error deleting analysis: {str(e)}")
             return jsonify({'error': str(e)}), 500
     
     try:
@@ -249,7 +262,7 @@ def view_analysis(analysis_id):
         # Otherwise return HTML template
         return render_template('analysis.html', analysis=analysis)
     except Exception as e:
-        print(f"Error in view_analysis: {str(e)}")
+        pass  # Removed: print(f"Error in view_analysis: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/analyze', methods=['POST'])
@@ -258,7 +271,12 @@ async def analyze():
         data = request.json
         if not data or 'query' not in data:
             return jsonify({'error': 'Missing required fields'}), 400
-            
+        
+        # Sanitize input
+        data['query'] = clean(data['query'])
+        if 'df_context' in data:
+            data['df_context'] = clean(data['df_context'])
+        
         # If df_context is provided, use it for data analysis
         if 'df_context' in data and data['df_context']:
             response = await ai_text_analysis("final", f"Query: {data['query']}\nContext: {data['df_context']}")
@@ -272,7 +290,7 @@ async def analyze():
             
         return jsonify({'response': response})
     except Exception as e:
-        print(f"Error in analyze: {str(e)}")
+        pass  # Removed: print(f"Error in analyze: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/stats', methods=['POST'])
@@ -281,7 +299,9 @@ def get_stats():
         data = request.json
         if not data or 'df_context' not in data:
             return jsonify({'error': 'Missing required fields'}), 400
-            
+        
+        # Sanitize input
+        data['df_context'] = clean(data['df_context'])
         df = pd.read_csv(io.StringIO(data['df_context']))
         stats = get_statistical_summary(df)
         return jsonify(stats)
@@ -294,7 +314,9 @@ def cleaning_suggestions():
         data = request.json
         if not data or 'df_context' not in data:
             return jsonify({'error': 'Missing required fields'}), 400
-            
+        
+        # Sanitize input
+        data['df_context'] = clean(data['df_context'])
         df = pd.read_csv(io.StringIO(data['df_context']))
         suggestions = get_cleaning_suggestions(df)
         return jsonify({'suggestions': suggestions})
@@ -329,16 +351,11 @@ def serve_image(analysis_id, viz_id):
         return response
         
     except Exception as e:
-        print(f"Error serving image: {str(e)}")
+        pass  # Removed: print(f"Error serving image: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     try:
-        app.run(debug=True, use_reloader=False)
-    except OSError as e:
-        if e.errno == 10038:  # Socket error
-            print("Socket error occurred. Attempting to restart server...")
-            cleanup()
-            app.run(debug=True, use_reloader=False)
-        else:
-            raise
+        app.run(debug=False, host='0.0.0.0', port=5000)
+    except Exception as e:
+        app.logger.error(f"Application failed to start: {str(e)}")

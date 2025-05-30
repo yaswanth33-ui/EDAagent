@@ -1,255 +1,341 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <!-- Navigation Bar -->
 <div class="bg-white shadow-sm mb-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-            <button onclick="window.location.href='/'" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>
-                Back to Home
-            </button>
-            <button onclick="window.location.href='/'" class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-                <i class="fas fa-plus mr-2"></i>
-                New Analysis
-            </button>
-        </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center py-4">
+      <button
+        onclick="window.location.href='/'"
+        class="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back to Home
+      </button>
+      <button
+        onclick="window.location.href='/'"
+        class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+      >
+        <i class="fas fa-plus mr-2"></i>
+        New Analysis
+      </button>
     </div>
+  </div>
 </div>
 
 <div class="space-y-8">
-    <!-- Header -->
-    <div class="text-center py-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Analysis History</h1>
-        <p class="text-lg text-gray-600">View and manage your past data analyses</p>
-    </div>
+  <!-- Header -->
+  <div class="text-center py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Analysis History</h1>
+    <p class="text-lg text-gray-600">View and manage your past data analyses</p>
+  </div>
 
-    <!-- History Grid -->
-    <div class="bg-white shadow-lg rounded-xl p-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="historyGrid">
-            {% for analysis in analyses %}
-            <div class="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow" 
-                 data-analysis-id="{{ analysis[0] }}">
-                <div class="flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="font-medium text-gray-900 truncate mb-2">{{ analysis[1] }}</h3>
-                            <p class="text-sm text-gray-500">{{ analysis[2] }}</p>
-                        </div>
-                        <button onclick="deleteAnalysis('{{ analysis[0] }}')"
-                                class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Key Insights Section -->
-                    <div class="flex-grow">
-                        <div class="space-y-3">
-                            <div class="bg-white p-3 rounded-lg shadow-sm">
-                                <div class="flex items-start">
-                                    <i class="fas fa-database text-blue-500 mt-1 mr-2"></i>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Loading dataset info...</p>
-                                        <p class="text-xs text-gray-500">Loading status...</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-white p-3 rounded-lg shadow-sm">
-                                <div class="flex items-start">
-                                    <i class="fas fa-chart-line text-green-500 mt-1 mr-2"></i>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Loading numeric columns...</p>
-                                        <p class="text-xs text-gray-500">Please wait...</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-white p-3 rounded-lg shadow-sm">
-                                <div class="flex items-start">
-                                    <i class="fas fa-tags text-purple-500 mt-1 mr-2"></i>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Loading categorical columns...</p>
-                                        <p class="text-xs text-gray-500">Please wait...</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-auto pt-4">
-                        <button onclick="window.location.href='/analysis/{{ analysis[0] }}'" 
-                                class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
-                            <i class="fas fa-eye mr-2"></i>View Analysis
-                        </button>
-                    </div>
-                </div>
+  <!-- History Grid -->
+  <div class="bg-white shadow-lg rounded-xl p-8">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      id="historyGrid"
+    >
+      {% for analysis in analyses %}
+      <div
+        class="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow"
+        data-analysis-id="{{ analysis[0] }}"
+      >
+        <div class="flex flex-col h-full">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="font-medium text-gray-900 truncate mb-2">
+                {{ analysis[1] }}
+              </h3>
+              <p class="text-sm text-gray-500">{{ analysis[2] }}</p>
             </div>
-            {% endfor %}
-        </div>
-    </div>
+            <button
+              onclick="deleteAnalysis('{{ analysis[0] }}')"
+              class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm mx-4">
-            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p class="text-gray-700 text-lg">Loading analysis...</p>
-            <p class="text-gray-500 text-sm mt-2">Please wait</p>
+          <!-- Key Insights Section -->
+          <div class="flex-grow">
+            <div class="space-y-3">
+              <div class="bg-white p-3 rounded-lg shadow-sm">
+                <div class="flex items-start">
+                  <i class="fas fa-database text-blue-500 mt-1 mr-2"></i>
+                  <div>
+                    <p class="text-sm text-gray-600">Loading dataset info...</p>
+                    <p class="text-xs text-gray-500">Loading status...</p>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white p-3 rounded-lg shadow-sm">
+                <div class="flex items-start">
+                  <i class="fas fa-chart-line text-green-500 mt-1 mr-2"></i>
+                  <div>
+                    <p class="text-sm text-gray-600">
+                      Loading numeric columns...
+                    </p>
+                    <p class="text-xs text-gray-500">Please wait...</p>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white p-3 rounded-lg shadow-sm">
+                <div class="flex items-start">
+                  <i class="fas fa-tags text-purple-500 mt-1 mr-2"></i>
+                  <div>
+                    <p class="text-sm text-gray-600">
+                      Loading categorical columns...
+                    </p>
+                    <p class="text-xs text-gray-500">Please wait...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-auto pt-4">
+            <button
+              onclick="window.location.href='/analysis/{{ analysis[0] }}'"
+              class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center"
+            >
+              <i class="fas fa-eye mr-2"></i>View Analysis
+            </button>
+          </div>
         </div>
+      </div>
+      {% endfor %}
     </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div
+    id="loadingOverlay"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm mx-4">
+      <div
+        class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"
+      ></div>
+      <p class="text-gray-700 text-lg">Loading analysis...</p>
+      <p class="text-gray-500 text-sm mt-2">Please wait</p>
+    </div>
+  </div>
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
-        <div class="p-6">
-            <div class="flex items-center justify-center mb-4">
-                <div class="bg-red-100 rounded-full p-3">
-                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
-                </div>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 text-center mb-2">Delete Analysis</h3>
-            <p class="text-gray-600 text-center mb-6">Are you sure you want to delete this analysis? This action cannot be undone.</p>
-            <div class="flex space-x-4">
-                <button onclick="closeDeleteModal()" 
-                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                    Cancel
-                </button>
-                <button onclick="confirmDelete()" 
-                        class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                    Delete
-                </button>
-            </div>
+<div
+  id="deleteModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div
+    class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all"
+  >
+    <div class="p-6">
+      <div class="flex items-center justify-center mb-4">
+        <div class="bg-red-100 rounded-full p-3">
+          <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
         </div>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-900 text-center mb-2">
+        Delete Analysis
+      </h3>
+      <p class="text-gray-600 text-center mb-6">
+        Are you sure you want to delete this analysis? This action cannot be
+        undone.
+      </p>
+      <div class="flex space-x-4">
+        <button
+          onclick="closeDeleteModal()"
+          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          onclick="confirmDelete()"
+          class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+        >
+          Delete
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const historyGrid = document.getElementById('historyGrid');
-    const loadingOverlay = document.getElementById('loadingOverlay');
+  document.addEventListener("DOMContentLoaded", () => {
+    const historyGrid = document.getElementById("historyGrid");
+    const loadingOverlay = document.getElementById("loadingOverlay");
 
     // Load insights for each analysis card
     async function loadAnalysisInsights() {
-        const cards = document.querySelectorAll('[data-analysis-id]');
-        
-        for (const card of cards) {
-            const analysisId = card.dataset.analysisId;
-            try {
-                const response = await fetch(`/analysis/${analysisId}`, {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const analysisData = await response.json();
-                    const stats = analysisData.statistical_summary;
-                    
-                    // Get numeric and categorical columns
-                    const numericColumns = stats.numeric ? Object.keys(stats.numeric) : [];
-                    const categoricalColumns = stats.categorical ? Object.keys(stats.categorical) : [];
-                    
-                    // Get total records and columns
-                    const totalRecords = numericColumns.length > 0 ? stats.numeric[numericColumns[0]].count : 0;
-                    const totalColumns = numericColumns.length + categoricalColumns.length;
+      const cards = document.querySelectorAll("[data-analysis-id]");
 
-                    // Check for missing values
-                    const hasMissingValues = analysisData.cleaning_suggestions && 
-                        analysisData.cleaning_suggestions.some(s => s.type === 'missing_values');
+      for (const card of cards) {
+        const analysisId = card.dataset.analysisId;
+        try {
+          const response = await fetch(`/analysis/${analysisId}`, {
+            headers: {
+              Accept: "application/json",
+            },
+          });
 
-                    // Update the card content
-                    const insightsContainer = card.querySelector('.space-y-3');
-                    insightsContainer.innerHTML = `
+          if (response.ok) {
+            const analysisData = await response.json();
+            const stats = analysisData.statistical_summary;
+
+            // Get numeric and categorical columns
+            const numericColumns = stats.numeric
+              ? Object.keys(stats.numeric)
+              : [];
+            const categoricalColumns = stats.categorical
+              ? Object.keys(stats.categorical)
+              : [];
+
+            // Get total records and columns
+            const totalRecords =
+              numericColumns.length > 0
+                ? stats.numeric[numericColumns[0]].count
+                : 0;
+            const totalColumns =
+              numericColumns.length + categoricalColumns.length;
+
+            // Check for missing values
+            const hasMissingValues =
+              analysisData.cleaning_suggestions &&
+              analysisData.cleaning_suggestions.some(
+                (s) => s.type === "missing_values"
+              );
+
+            // Update the card content
+            const insightsContainer = card.querySelector(".space-y-3");
+            insightsContainer.innerHTML = `
                         <div class="bg-white p-3 rounded-lg shadow-sm">
                             <div class="flex items-start">
                                 <i class="fas fa-database text-blue-500 mt-1 mr-2"></i>
                                 <div>
                                     <p class="text-sm text-gray-600">${totalRecords} records with ${totalColumns} columns</p>
-                                    <p class="text-xs text-gray-500">${hasMissingValues ? 'Contains missing values' : 'Complete dataset with no missing values'}</p>
+                                    <p class="text-xs text-gray-500">${
+                                      hasMissingValues
+                                        ? "Contains missing values"
+                                        : "Complete dataset with no missing values"
+                                    }</p>
                                 </div>
                             </div>
                         </div>
-                        ${numericColumns.length > 0 ? `
+                        ${
+                          numericColumns.length > 0
+                            ? `
                             <div class="bg-white p-3 rounded-lg shadow-sm">
                                 <div class="flex items-start">
                                     <i class="fas fa-chart-line text-green-500 mt-1 mr-2"></i>
                                     <div>
                                         <p class="text-sm text-gray-600">Numeric Columns</p>
-                                        <p class="text-xs text-gray-500">${numericColumns.map(col => `${col} (${stats.numeric[col].dtype || 'numeric'})`).join(', ')}</p>
+                                        <p class="text-xs text-gray-500">${numericColumns
+                                          .map(
+                                            (col) =>
+                                              `${col} (${
+                                                stats.numeric[col].dtype ||
+                                                "numeric"
+                                              })`
+                                          )
+                                          .join(", ")}</p>
                                     </div>
                                 </div>
                             </div>
-                        ` : ''}
-                        ${categoricalColumns.length > 0 ? `
+                        `
+                            : ""
+                        }
+                        ${
+                          categoricalColumns.length > 0
+                            ? `
                             <div class="bg-white p-3 rounded-lg shadow-sm">
                                 <div class="flex items-start">
                                     <i class="fas fa-tags text-purple-500 mt-1 mr-2"></i>
                                     <div>
                                         <p class="text-sm text-gray-600">Categorical Columns</p>
-                                        <p class="text-xs text-gray-500">${categoricalColumns.map(col => `${col} (${stats.categorical[col].dtype || 'categorical'})`).join(', ')}</p>
+                                        <p class="text-xs text-gray-500">${categoricalColumns
+                                          .map(
+                                            (col) =>
+                                              `${col} (${
+                                                stats.categorical[col].dtype ||
+                                                "categorical"
+                                              })`
+                                          )
+                                          .join(", ")}</p>
                                     </div>
                                 </div>
                             </div>
-                        ` : ''}
-                        ${analysisData.anomalies && Object.keys(analysisData.anomalies).length > 0 ? `
+                        `
+                            : ""
+                        }
+                        ${
+                          analysisData.anomalies &&
+                          Object.keys(analysisData.anomalies).length > 0
+                            ? `
                             <div class="bg-white p-3 rounded-lg shadow-sm">
                                 <div class="flex items-start">
                                     <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-2"></i>
                                     <div>
                                         <p class="text-sm text-gray-600">Anomalies Detected</p>
-                                        <p class="text-xs text-gray-500">${Object.keys(analysisData.anomalies).length} columns with potential anomalies</p>
+                                        <p class="text-xs text-gray-500">${
+                                          Object.keys(analysisData.anomalies)
+                                            .length
+                                        } columns with potential anomalies</p>
                                     </div>
                                 </div>
                             </div>
-                        ` : ''}
+                        `
+                            : ""
+                        }
                     `;
-                }
-            } catch (error) {
-                console.error(`Error loading insights for analysis ${analysisId}:`, error);
-            }
+          }
+        } catch (error) {
+          // Removed: console.error(`Error loading insights for analysis ${analysisId}:`, error);
         }
+      }
     }
 
     // Remove the click event listener from history grid since we now have explicit buttons
-    historyGrid.removeEventListener('click', (e) => {
-        const historyItem = e.target.closest('[data-analysis-id]');
-        if (historyItem) {
-            const analysisId = historyItem.dataset.analysisId;
-            loadAnalysis(analysisId);
-        }
+    historyGrid.removeEventListener("click", (e) => {
+      const historyItem = e.target.closest("[data-analysis-id]");
+      if (historyItem) {
+        const analysisId = historyItem.dataset.analysisId;
+        loadAnalysis(analysisId);
+      }
     });
 
     // Function to load analysis
     async function loadAnalysis(analysisId) {
-        try {
-            loadingOverlay.classList.remove('hidden');
-            const response = await fetch(`/analysis/${analysisId}`, {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                // Store the analysis data in sessionStorage
-                sessionStorage.setItem('currentAnalysis', JSON.stringify(data));
-                // Redirect to the analysis view
-                window.location.href = `/analysis/${analysisId}`;
-            } else {
-                const error = await response.json();
-                showError(error.error || 'Failed to load analysis');
-            }
-        } catch (error) {
-            showError('Error loading analysis: ' + error.message);
-        } finally {
-            loadingOverlay.classList.add('hidden');
+      try {
+        loadingOverlay.classList.remove("hidden");
+        const response = await fetch(`/analysis/${analysisId}`, {
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Store the analysis data in sessionStorage
+          sessionStorage.setItem("currentAnalysis", JSON.stringify(data));
+          // Redirect to the analysis view
+          window.location.href = `/analysis/${analysisId}`;
+        } else {
+          const error = await response.json();
+          showError(error.error || "Failed to load analysis");
         }
+      } catch (error) {
+        showError("Error loading analysis: " + error.message);
+      } finally {
+        loadingOverlay.classList.add("hidden");
+      }
     }
 
     // Function to show error message
     function showError(message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg z-50';
-        errorDiv.innerHTML = `
+      const errorDiv = document.createElement("div");
+      errorDiv.className =
+        "fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg z-50";
+      errorDiv.innerHTML = `
             <div class="flex items-center">
                 <div class="py-1">
                     <svg class="h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -262,59 +348,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        document.body.appendChild(errorDiv);
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 5000);
+      document.body.appendChild(errorDiv);
+      setTimeout(() => {
+        errorDiv.remove();
+      }, 5000);
     }
 
     // Load insights for all analysis cards
     loadAnalysisInsights();
-});
+  });
 
-let currentAnalysisId = null;
+  let currentAnalysisId = null;
 
-function showDeleteModal(analysisId) {
+  function showDeleteModal(analysisId) {
     currentAnalysisId = analysisId;
-    const modal = document.getElementById('deleteModal');
-    modal.classList.remove('hidden');
+    const modal = document.getElementById("deleteModal");
+    modal.classList.remove("hidden");
     // Add animation
-    modal.querySelector('.transform').classList.add('scale-100');
-    modal.querySelector('.transform').classList.remove('scale-95');
-}
+    modal.querySelector(".transform").classList.add("scale-100");
+    modal.querySelector(".transform").classList.remove("scale-95");
+  }
 
-function closeDeleteModal() {
-    const modal = document.getElementById('deleteModal');
+  function closeDeleteModal() {
+    const modal = document.getElementById("deleteModal");
     // Add animation
-    modal.querySelector('.transform').classList.add('scale-95');
-    modal.querySelector('.transform').classList.remove('scale-100');
+    modal.querySelector(".transform").classList.add("scale-95");
+    modal.querySelector(".transform").classList.remove("scale-100");
     setTimeout(() => {
-        modal.classList.add('hidden');
-        currentAnalysisId = null;
+      modal.classList.add("hidden");
+      currentAnalysisId = null;
     }, 200);
-}
+  }
 
-async function confirmDelete() {
+  async function confirmDelete() {
     if (!currentAnalysisId) return;
-    
+
     try {
-        const response = await fetch(`/analysis/${currentAnalysisId}`, {
-            method: 'DELETE'
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            // Remove the analysis card from the page
-            const card = document.querySelector(`[data-analysis-id="${currentAnalysisId}"]`);
-            if (card) {
-                card.remove();
-            }
-            
-            // Show success message
-            const successDiv = document.createElement('div');
-            successDiv.className = 'fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg z-50';
-            successDiv.innerHTML = `
+      const response = await fetch(`/analysis/${currentAnalysisId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Remove the analysis card from the page
+        const card = document.querySelector(
+          `[data-analysis-id="${currentAnalysisId}"]`
+        );
+        if (card) {
+          card.remove();
+        }
+
+        // Show success message
+        const successDiv = document.createElement("div");
+        successDiv.className =
+          "fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg z-50";
+        successDiv.innerHTML = `
                 <div class="flex items-center">
                     <div class="py-1">
                         <svg class="h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -327,25 +416,27 @@ async function confirmDelete() {
                     </div>
                 </div>
             `;
-            document.body.appendChild(successDiv);
-            setTimeout(() => {
-                successDiv.remove();
-            }, 3000);
-            
-            // If no analyses left, show the "No analyses found" message
-            const cards = document.querySelectorAll('[data-analysis-id]');
-            if (cards.length === 0) {
-                const container = document.querySelector('.grid');
-                container.innerHTML = '<p class="text-gray-600 col-span-full text-center py-8">No analyses found.</p>';
-            }
-        } else {
-            throw new Error(data.error || 'Error deleting analysis');
+        document.body.appendChild(successDiv);
+        setTimeout(() => {
+          successDiv.remove();
+        }, 3000);
+
+        // If no analyses left, show the "No analyses found" message
+        const cards = document.querySelectorAll("[data-analysis-id]");
+        if (cards.length === 0) {
+          const container = document.querySelector(".grid");
+          container.innerHTML =
+            '<p class="text-gray-600 col-span-full text-center py-8">No analyses found.</p>';
         }
+      } else {
+        throw new Error(data.error || "Error deleting analysis");
+      }
     } catch (error) {
-        console.error('Error:', error);
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg z-50';
-        errorDiv.innerHTML = `
+      console.error("Error:", error);
+      const errorDiv = document.createElement("div");
+      errorDiv.className =
+        "fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg z-50";
+      errorDiv.innerHTML = `
             <div class="flex items-center">
                 <div class="py-1">
                     <svg class="h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -358,62 +449,65 @@ async function confirmDelete() {
                 </div>
             </div>
         `;
-        document.body.appendChild(errorDiv);
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 5000);
+      document.body.appendChild(errorDiv);
+      setTimeout(() => {
+        errorDiv.remove();
+      }, 5000);
     }
-    
-    closeDeleteModal();
-}
 
-// Update the delete button onclick handler
-document.querySelectorAll('[data-analysis-id]').forEach(card => {
-    const deleteButton = card.querySelector('button[onclick^="deleteAnalysis"]');
+    closeDeleteModal();
+  }
+
+  // Update the delete button onclick handler
+  document.querySelectorAll("[data-analysis-id]").forEach((card) => {
+    const deleteButton = card.querySelector(
+      'button[onclick^="deleteAnalysis"]'
+    );
     if (deleteButton) {
-        deleteButton.onclick = (e) => {
-            e.stopPropagation();
-            showDeleteModal(card.dataset.analysisId);
-        };
+      deleteButton.onclick = (e) => {
+        e.stopPropagation();
+        showDeleteModal(card.dataset.analysisId);
+      };
     }
-});
+  });
 </script>
 
 <style>
-/* Add any custom styles here */
-.history-card {
+  /* Add any custom styles here */
+  .history-card {
     transition: transform 0.2s ease-in-out;
-}
+  }
 
-.history-card:hover {
+  .history-card:hover {
     transform: translateY(-2px);
-}
+  }
 
-/* Loading animation */
-@keyframes spin {
+  /* Loading animation */
+  @keyframes spin {
     from {
-        transform: rotate(0deg);
+      transform: rotate(0deg);
     }
     to {
-        transform: rotate(360deg);
+      transform: rotate(360deg);
     }
-}
+  }
 
-.animate-spin {
+  .animate-spin {
     animation: spin 1s linear infinite;
-}
+  }
 
-/* Key Insights Styles */
-.insight-card {
+  /* Key Insights Styles */
+  .insight-card {
     transition: all 0.2s ease-in-out;
-}
+  }
 
-.insight-card:hover {
+  .insight-card:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
 
-.insight-icon {
+  .insight-icon {
     width: 24px;
     height: 24px;
     display: flex;
@@ -421,19 +515,19 @@ document.querySelectorAll('[data-analysis-id]').forEach(card => {
     justify-content: center;
     border-radius: 50%;
     background-color: rgba(59, 130, 246, 0.1);
-}
+  }
 
-/* Add these styles to your existing styles */
-.transform {
+  /* Add these styles to your existing styles */
+  .transform {
     transition: transform 0.2s ease-out;
-}
+  }
 
-.scale-95 {
+  .scale-95 {
     transform: scale(0.95);
-}
+  }
 
-.scale-100 {
+  .scale-100 {
     transform: scale(1);
-}
+  }
 </style>
-{% endblock %} 
+{% endblock %}

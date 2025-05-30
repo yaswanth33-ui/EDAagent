@@ -1,388 +1,476 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <!-- Navigation Bar -->
 <div class="bg-white shadow-sm mb-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-            <button onclick="window.location.href='/history'" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>
-                Back to History
-            </button>
-            <button onclick="window.location.href='/'" class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-                <i class="fas fa-plus mr-2"></i>
-                New Analysis
-            </button>
-        </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center py-4">
+      <button
+        onclick="window.location.href='/history'"
+        class="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back to History
+      </button>
+      <button
+        onclick="window.location.href='/'"
+        class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+      >
+        <i class="fas fa-plus mr-2"></i>
+        New Analysis
+      </button>
     </div>
+  </div>
 </div>
 
 <div class="space-y-8">
-    <!-- Analysis Results -->
-    <div id="analysisResults" class="space-y-8">
-        <!-- Analysis Plan -->
-        <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
-            <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                <i class="fas fa-list-check text-blue-500 mr-2"></i>
-                Analysis Plan
-            </h2>
-            <div id="analysisPlan" class="bg-gray-50 p-6 rounded-lg prose prose-blue max-w-none">
-                <!-- Markdown content will be rendered here -->
-                <p class="text-gray-500">Loading analysis plan...</p>
-            </div>
-        </div>
-
-        
-
-        <!-- Visualizations -->
-        <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
-            <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                <i class="fas fa-chart-bar text-blue-500 mr-2"></i>
-                Visualizations
-            </h2>
-            <div class="mb-6">
-                <div class="flex space-x-4 mb-4">
-                    <button class="viz-filter active" data-type="all">All</button>
-                    <button class="viz-filter" data-type="distribution">Distributions</button>
-                    <button class="viz-filter" data-type="correlation">Correlations</button>
-                    <button class="viz-filter" data-type="categorical">Categorical</button>
-                    <button class="viz-filter" data-type="relationship">Relationships</button>
-                    <button class="viz-filter" data-type="advanced">Advanced</button>
-                </div>
-            </div>
-            <div id="visualizations" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <p class="text-gray-500">Loading visualizations...</p>
-            </div>
-        </div>
-
-        <!-- Statistical Summary -->
-        <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
-            <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                <i class="fas fa-chart-pie text-blue-500 mr-2"></i>
-                Statistical Summary
-            </h2>
-            <div class="space-y-6">
-                <div id="numericStats" class="bg-gray-50 p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Numeric Columns</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metric</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loading...</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" colspan="2">Loading numeric statistics...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="categoricalStats" class="bg-gray-50 p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Categorical Columns</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <p class="text-gray-500">Loading categorical statistics...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Anomalies -->
-        <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
-            <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                Anomalies Detected
-            </h2>
-            <div id="anomaliesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <p class="text-gray-500">Loading anomalies...</p>
-            </div>
-        </div>
-
-        <!-- Cleaning Suggestions -->
-        <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
-            <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                <i class="fas fa-broom text-green-500 mr-2"></i>
-                Data Cleaning Suggestions
-            </h2>
-            <div id="cleaningSuggestions" class="space-y-4">
-                <p class="text-gray-500">Loading cleaning suggestions...</p>
-            </div>
-        </div>
+  <!-- Analysis Results -->
+  <div id="analysisResults" class="space-y-8">
+    <!-- Analysis Plan -->
+    <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
+      <h2 class="text-2xl font-semibold mb-4 flex items-center">
+        <i class="fas fa-list-check text-blue-500 mr-2"></i>
+        Analysis Plan
+      </h2>
+      <div
+        id="analysisPlan"
+        class="bg-gray-50 p-6 rounded-lg prose prose-blue max-w-none"
+      >
+        <!-- Markdown content will be rendered here -->
+        <p class="text-gray-500">Loading analysis plan...</p>
+      </div>
     </div>
+
+    <!-- Visualizations -->
+    <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
+      <h2 class="text-2xl font-semibold mb-4 flex items-center">
+        <i class="fas fa-chart-bar text-blue-500 mr-2"></i>
+        Visualizations
+      </h2>
+      <div class="mb-6">
+        <div class="flex space-x-4 mb-4">
+          <button class="viz-filter active" data-type="all">All</button>
+          <button class="viz-filter" data-type="distribution">
+            Distributions
+          </button>
+          <button class="viz-filter" data-type="correlation">
+            Correlations
+          </button>
+          <button class="viz-filter" data-type="categorical">
+            Categorical
+          </button>
+          <button class="viz-filter" data-type="relationship">
+            Relationships
+          </button>
+          <button class="viz-filter" data-type="advanced">Advanced</button>
+        </div>
+      </div>
+      <div
+        id="visualizations"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <p class="text-gray-500">Loading visualizations...</p>
+      </div>
+    </div>
+
+    <!-- Statistical Summary -->
+    <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
+      <h2 class="text-2xl font-semibold mb-4 flex items-center">
+        <i class="fas fa-chart-pie text-blue-500 mr-2"></i>
+        Statistical Summary
+      </h2>
+      <div class="space-y-6">
+        <div id="numericStats" class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            Numeric Columns
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Metric
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Loading...
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                    colspan="2"
+                  >
+                    Loading numeric statistics...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="categoricalStats" class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            Categorical Columns
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="text-gray-500">Loading categorical statistics...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anomalies -->
+    <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
+      <h2 class="text-2xl font-semibold mb-4 flex items-center">
+        <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+        Anomalies Detected
+      </h2>
+      <div
+        id="anomaliesGrid"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <p class="text-gray-500">Loading anomalies...</p>
+      </div>
+    </div>
+
+    <!-- Cleaning Suggestions -->
+    <div class="bg-white shadow-lg rounded-xl p-8 hover-scale">
+      <h2 class="text-2xl font-semibold mb-4 flex items-center">
+        <i class="fas fa-broom text-green-500 mr-2"></i>
+        Data Cleaning Suggestions
+      </h2>
+      <div id="cleaningSuggestions" class="space-y-4">
+        <p class="text-gray-500">Loading cleaning suggestions...</p>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- Final Analysis Section -->
-<div id="finalAnalysisSection" class="bg-white shadow-lg rounded-xl p-8 hover-scale mt-8">
-    <h2 class="text-2xl font-semibold mb-4 flex items-center">
-        <i class="fas fa-file-alt text-blue-500 mr-2"></i>
-        Final Analysis
-    </h2>
-    <div id="finalAnalysis" class="bg-gray-50 p-6 rounded-lg prose prose-blue max-w-none">
-        <!-- Dynamic markdown content will be rendered here -->
-        <p class="text-gray-500">Loading final analysis...</p>
-    </div>
+<div
+  id="finalAnalysisSection"
+  class="bg-white shadow-lg rounded-xl p-8 hover-scale mt-8"
+>
+  <h2 class="text-2xl font-semibold mb-4 flex items-center">
+    <i class="fas fa-file-alt text-blue-500 mr-2"></i>
+    Final Analysis
+  </h2>
+  <div
+    id="finalAnalysis"
+    class="bg-gray-50 p-6 rounded-lg prose prose-blue max-w-none"
+  >
+    <!-- Dynamic markdown content will be rendered here -->
+    <p class="text-gray-500">Loading final analysis...</p>
+  </div>
 </div>
 
 <!-- Loading Overlay -->
-<div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm mx-4">
-        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-        <p class="text-gray-700 text-lg">Loading analysis...</p>
-        <p class="text-gray-500 text-sm mt-2">This may take a few moments</p>
-    </div>
+<div
+  id="loadingOverlay"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm mx-4">
+    <div
+      class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"
+    ></div>
+    <p class="text-gray-700 text-lg">Loading analysis...</p>
+    <p class="text-gray-500 text-sm mt-2">This may take a few moments</p>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-let currentAnalysisId = null;
+  let currentAnalysisId = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-    const analysisResults = document.getElementById('analysisResults');
-    const analysisPlan = document.getElementById('analysisPlan');
-    const visualizations = document.getElementById('visualizations');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const finalAnalysisSection = document.getElementById('finalAnalysisSection');
-    const finalAnalysisContent = document.getElementById('finalAnalysis');
-    const numericStats = document.getElementById('numericStats');
-    const categoricalStats = document.getElementById('categoricalStats');
-    const anomaliesGrid = document.getElementById('anomaliesGrid');
-    const cleaningSuggestions = document.getElementById('cleaningSuggestions');
+  document.addEventListener("DOMContentLoaded", () => {
+    const analysisResults = document.getElementById("analysisResults");
+    const analysisPlan = document.getElementById("analysisPlan");
+    const visualizations = document.getElementById("visualizations");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const finalAnalysisSection = document.getElementById(
+      "finalAnalysisSection"
+    );
+    const finalAnalysisContent = document.getElementById("finalAnalysis");
+    const numericStats = document.getElementById("numericStats");
+    const categoricalStats = document.getElementById("categoricalStats");
+    const anomaliesGrid = document.getElementById("anomaliesGrid");
+    const cleaningSuggestions = document.getElementById("cleaningSuggestions");
 
     // Configure marked options
     marked.setOptions({
-        breaks: true,
-        gfm: true,
-        headerIds: true,
-        mangle: false,
-        sanitize: false,
-        smartLists: true,
-        smartypants: true
+      breaks: true,
+      gfm: true,
+      headerIds: true,
+      mangle: false,
+      sanitize: false,
+      smartLists: true,
+      smartypants: true,
     });
 
     // Function to load analysis
     async function loadAnalysis(analysisId) {
-        try {
-            loadingOverlay.classList.remove('hidden');
-            const response = await fetch(`/analysis/${analysisId}`, {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            const data = await response.json();
-            
-            if (response.ok) {
-                currentAnalysisId = analysisId;
-                displayAnalysis(data);
-            } else {
-                console.error('Analysis load error:', data.error);
-                showError(data.error || 'Failed to load analysis');
-            }
-        } catch (error) {
-            console.error('Analysis load error:', error);
-            showError('Error loading analysis: ' + error.message);
-        } finally {
-            loadingOverlay.classList.add('hidden');
+      try {
+        loadingOverlay.classList.remove("hidden");
+        const response = await fetch(`/analysis/${analysisId}`, {
+          headers: {
+            Accept: "application/json",
+          },
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          currentAnalysisId = analysisId;
+          displayAnalysis(data);
+        } else {
+          showError(data.error || "Failed to load analysis");
         }
+      } catch (error) {
+        showError("Error loading analysis: " + error.message);
+      } finally {
+        loadingOverlay.classList.add("hidden");
+      }
     }
 
     // Function to display analysis
     function displayAnalysis(data) {
-        console.log('Displaying analysis data:', data); // Debug log
+      if (data.final_analysis) {
+        try {
+          finalAnalysisContent.innerHTML = marked.parse(data.final_analysis);
+          finalAnalysisSection.classList.remove("hidden");
+        } catch (markdownError) {
+          finalAnalysisContent.innerHTML = `<div class="text-red-500">Error rendering final analysis: ${markdownError.message}</div>`;
+          finalAnalysisSection.classList.remove("hidden");
+        }
+      } else {
+        finalAnalysisSection.classList.add("hidden");
+      }
 
-        // Display final analysis if available
-        if (data.final_analysis) {
-            try {
-                finalAnalysisContent.innerHTML = marked.parse(data.final_analysis);
-                finalAnalysisSection.classList.remove('hidden');
-            } catch (markdownError) {
-                console.error('Markdown parsing error:', markdownError);
-                finalAnalysisContent.innerHTML = `<div class="text-red-500">Error rendering final analysis: ${markdownError.message}</div>`;
-                finalAnalysisSection.classList.remove('hidden');
-            }
-        } else {
-            finalAnalysisSection.classList.add('hidden');
+      // Display analysis plan
+      if (data.analysis_plan) {
+        try {
+          analysisPlan.innerHTML = marked.parse(data.analysis_plan);
+        } catch (markdownError) {
+          analysisPlan.innerHTML = `<div class="text-red-500">Error rendering analysis plan: ${markdownError.message}</div>`;
         }
-        
-        // Display analysis plan
-        if (data.analysis_plan) {
-            try {
-                analysisPlan.innerHTML = marked.parse(data.analysis_plan);
-            } catch (markdownError) {
-                console.error('Markdown parsing error:', markdownError);
-                analysisPlan.innerHTML = `<div class="text-red-500">Error rendering analysis plan: ${markdownError.message}</div>`;
-            }
-        } else {
-            analysisPlan.innerHTML = '<p class="text-gray-500">No analysis plan available</p>';
-        }
-        
-        // Display visualizations
-        visualizations.innerHTML = '';
-        if (data.visualizations && Array.isArray(data.visualizations)) {
-            data.visualizations.forEach(viz => {
-                const vizCard = createVizCard(viz);
-                visualizations.appendChild(vizCard);
-            });
-        } else {
-            visualizations.innerHTML = '<p class="text-gray-500">No visualizations available</p>';
-        }
+      } else {
+        analysisPlan.innerHTML =
+          '<p class="text-gray-500">No analysis plan available</p>';
+      }
 
-        // Display statistical summary
-        if (data.statistical_summary) {
-            // Update numeric statistics
-            if (data.statistical_summary.numeric) {
-                const table = numericStats.querySelector('table');
-                const thead = table.querySelector('thead tr');
-                const tbody = table.querySelector('tbody');
-                
-                // Update header
-                thead.innerHTML = `
+      // Display visualizations
+      visualizations.innerHTML = "";
+      if (data.visualizations && Array.isArray(data.visualizations)) {
+        data.visualizations.forEach((viz) => {
+          const vizCard = createVizCard(viz);
+          visualizations.appendChild(vizCard);
+        });
+      } else {
+        visualizations.innerHTML =
+          '<p class="text-gray-500">No visualizations available</p>';
+      }
+
+      // Display statistical summary
+      if (data.statistical_summary) {
+        // Update numeric statistics
+        if (data.statistical_summary.numeric) {
+          const table = numericStats.querySelector("table");
+          const thead = table.querySelector("thead tr");
+          const tbody = table.querySelector("tbody");
+
+          // Update header
+          thead.innerHTML = `
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metric</th>
-                    ${Object.keys(data.statistical_summary.numeric).map(col => `
+                    ${Object.keys(data.statistical_summary.numeric)
+                      .map(
+                        (col) => `
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${col}</th>
-                    `).join('')}
+                    `
+                      )
+                      .join("")}
                 `;
-                
-                // Update body
-                tbody.innerHTML = '';
-                ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'].forEach(metric => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${metric}</td>
-                        ${Object.keys(data.statistical_summary.numeric).map(col => `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${metric !== 'count' ? 
-                                    Number(data.statistical_summary.numeric[col][metric]).toFixed(2) : 
-                                    data.statistical_summary.numeric[col][metric]}
-                            </td>
-                        `).join('')}
-                    `;
-                    tbody.appendChild(row);
-                });
-            } else {
-                numericStats.innerHTML = '<p class="text-gray-500">No numeric statistics available</p>';
-            }
 
-            // Update categorical statistics
-            if (data.statistical_summary.categorical) {
-                const grid = categoricalStats.querySelector('.grid');
-                grid.innerHTML = '';
-                Object.entries(data.statistical_summary.categorical).forEach(([col, stats]) => {
-                    const card = document.createElement('div');
-                    card.className = 'bg-white p-4 rounded-lg shadow';
-                    card.innerHTML = `
+          // Update body
+          tbody.innerHTML = "";
+          ["count", "mean", "std", "min", "25%", "50%", "75%", "max"].forEach(
+            (metric) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${metric}</td>
+                        ${Object.keys(data.statistical_summary.numeric)
+                          .map(
+                            (col) => `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${
+                                  metric !== "count"
+                                    ? Number(
+                                        data.statistical_summary.numeric[col][
+                                          metric
+                                        ]
+                                      ).toFixed(2)
+                                    : data.statistical_summary.numeric[col][
+                                        metric
+                                      ]
+                                }
+                            </td>
+                        `
+                          )
+                          .join("")}
+                    `;
+              tbody.appendChild(row);
+            }
+          );
+        } else {
+          numericStats.innerHTML =
+            '<p class="text-gray-500">No numeric statistics available</p>';
+        }
+
+        // Update categorical statistics
+        if (data.statistical_summary.categorical) {
+          const grid = categoricalStats.querySelector(".grid");
+          grid.innerHTML = "";
+          Object.entries(data.statistical_summary.categorical).forEach(
+            ([col, stats]) => {
+              const card = document.createElement("div");
+              card.className = "bg-white p-4 rounded-lg shadow";
+              card.innerHTML = `
                         <h4 class="font-medium text-gray-900 mb-2">${col}</h4>
-                        <p class="text-sm text-gray-500 mb-2">Unique Values: ${stats.unique_values}</p>
+                        <p class="text-sm text-gray-500 mb-2">Unique Values: ${
+                          stats.unique_values
+                        }</p>
                         <div class="space-y-2">
                             <p class="text-sm font-medium text-gray-700">Most Common:</p>
                             <ul class="text-sm text-gray-600">
-                                ${Object.entries(stats.most_common).map(([value, count]) => `
+                                ${Object.entries(stats.most_common)
+                                  .map(
+                                    ([value, count]) => `
                                     <li class="flex justify-between">
                                         <span>${value}</span>
                                         <span class="font-medium">${count}</span>
                                     </li>
-                                `).join('')}
+                                `
+                                  )
+                                  .join("")}
                             </ul>
                         </div>
                     `;
-                    grid.appendChild(card);
-                });
-            } else {
-                categoricalStats.innerHTML = '<p class="text-gray-500">No categorical statistics available</p>';
+              grid.appendChild(card);
             }
+          );
+        } else {
+          categoricalStats.innerHTML =
+            '<p class="text-gray-500">No categorical statistics available</p>';
         }
+      }
 
-        // Display anomalies
-        if (data.anomalies && Object.keys(data.anomalies).length > 0) {
-            anomaliesGrid.innerHTML = '';
-            Object.entries(data.anomalies).forEach(([col, stats]) => {
-                const card = document.createElement('div');
-                card.className = 'bg-yellow-50 p-6 rounded-lg border border-yellow-200';
-                card.innerHTML = `
+      // Display anomalies
+      if (data.anomalies && Object.keys(data.anomalies).length > 0) {
+        anomaliesGrid.innerHTML = "";
+        Object.entries(data.anomalies).forEach(([col, stats]) => {
+          const card = document.createElement("div");
+          card.className =
+            "bg-yellow-50 p-6 rounded-lg border border-yellow-200";
+          card.innerHTML = `
                     <h3 class="text-lg font-semibold text-yellow-800 mb-2">${col}</h3>
                     <div class="space-y-2">
                         <p class="text-sm text-yellow-700">
-                            <span class="font-medium">Count:</span> ${stats.count}
+                            <span class="font-medium">Count:</span> ${
+                              stats.count
+                            }
                         </p>
                         <p class="text-sm text-yellow-700">
-                            <span class="font-medium">Percentage:</span> ${stats.percentage.toFixed(2)}%
+                            <span class="font-medium">Percentage:</span> ${stats.percentage.toFixed(
+                              2
+                            )}%
                         </p>
                     </div>
                 `;
-                anomaliesGrid.appendChild(card);
-            });
-        } else {
-            anomaliesGrid.innerHTML = '<p class="text-gray-500">No anomalies detected</p>';
-        }
+          anomaliesGrid.appendChild(card);
+        });
+      } else {
+        anomaliesGrid.innerHTML =
+          '<p class="text-gray-500">No anomalies detected</p>';
+      }
 
-        // Display cleaning suggestions
-        if (data.cleaning_suggestions && data.cleaning_suggestions.length > 0) {
-            cleaningSuggestions.innerHTML = '';
-            data.cleaning_suggestions.forEach(suggestion => {
-                const card = document.createElement('div');
-                card.className = 'bg-green-50 p-6 rounded-lg border border-green-200';
-                card.innerHTML = `
+      // Display cleaning suggestions
+      if (data.cleaning_suggestions && data.cleaning_suggestions.length > 0) {
+        cleaningSuggestions.innerHTML = "";
+        data.cleaning_suggestions.forEach((suggestion) => {
+          const card = document.createElement("div");
+          card.className = "bg-green-50 p-6 rounded-lg border border-green-200";
+          card.innerHTML = `
                     <h3 class="text-lg font-semibold text-green-800 mb-2">
-                        ${getSuggestionIcon(suggestion.type)}${getSuggestionTitle(suggestion.type)}
+                        ${getSuggestionIcon(
+                          suggestion.type
+                        )}${getSuggestionTitle(suggestion.type)}
                     </h3>
-                    <p class="text-sm text-green-700 mb-4">${suggestion.message}</p>
-                    ${suggestion.details ? `
+                    <p class="text-sm text-green-700 mb-4">${
+                      suggestion.message
+                    }</p>
+                    ${
+                      suggestion.details
+                        ? `
                         <div class="bg-white p-4 rounded-lg">
-                            <pre class="text-sm text-green-800 overflow-x-auto">${JSON.stringify(suggestion.details, null, 2)}</pre>
+                            <pre class="text-sm text-green-800 overflow-x-auto">${JSON.stringify(
+                              suggestion.details,
+                              null,
+                              2
+                            )}</pre>
                         </div>
-                    ` : ''}
+                    `
+                        : ""
+                    }
                 `;
-                cleaningSuggestions.appendChild(card);
-            });
-        } else {
-            cleaningSuggestions.innerHTML = '<p class="text-gray-500">No cleaning suggestions available</p>';
-        }
+          cleaningSuggestions.appendChild(card);
+        });
+      } else {
+        cleaningSuggestions.innerHTML =
+          '<p class="text-gray-500">No cleaning suggestions available</p>';
+      }
     }
 
     // Helper function to get suggestion icon
     function getSuggestionIcon(type) {
-        switch (type) {
-            case 'missing_values':
-                return '<i class="fas fa-exclamation-circle mr-2"></i>';
-            case 'duplicates':
-                return '<i class="fas fa-copy mr-2"></i>';
-            case 'outliers':
-                return '<i class="fas fa-chart-line mr-2"></i>';
-            default:
-                return '';
-        }
+      switch (type) {
+        case "missing_values":
+          return '<i class="fas fa-exclamation-circle mr-2"></i>';
+        case "duplicates":
+          return '<i class="fas fa-copy mr-2"></i>';
+        case "outliers":
+          return '<i class="fas fa-chart-line mr-2"></i>';
+        default:
+          return "";
+      }
     }
 
     // Helper function to get suggestion title
     function getSuggestionTitle(type) {
-        switch (type) {
-            case 'missing_values':
-                return 'Missing Values';
-            case 'duplicates':
-                return 'Duplicate Rows';
-            case 'outliers':
-                return 'Outliers';
-            default:
-                return type;
-        }
+      switch (type) {
+        case "missing_values":
+          return "Missing Values";
+        case "duplicates":
+          return "Duplicate Rows";
+        case "outliers":
+          return "Outliers";
+        default:
+          return type;
+      }
     }
 
     // Function to create visualization card
     function createVizCard(viz) {
-        console.log('Creating visualization card:', viz); // Debug log
-        
-        const card = document.createElement('div');
-        card.className = 'viz-card';
-        card.dataset.type = viz.type;
-        
-        // Check if image_data exists and is valid
-        if (!viz.image_data) {
-            console.error('No image data found for visualization:', viz.title);
-            return card; // Return card without image if no data
-        }
-        
-        card.innerHTML = `
+      const card = document.createElement("div");
+      card.className = "viz-card";
+      card.dataset.type = viz.type;
+
+      // Check if image_data exists and is valid
+      if (!viz.image_data) {
+        return card; // Return card without image if no data
+      }
+
+      card.innerHTML = `
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 <div class="p-4">
                     <h3 class="font-medium text-gray-900 mb-2">${viz.title}</h3>
@@ -409,52 +497,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        
-        return card;
+
+      return card;
     }
 
     // Add visualization filtering functionality
-    const vizFilters = document.querySelectorAll('.viz-filter');
-    vizFilters.forEach(filter => {
-        filter.addEventListener('click', () => {
-            vizFilters.forEach(f => f.classList.remove('active'));
-            filter.classList.add('active');
-            
-            const selectedType = filter.dataset.type;
-            const vizCards = visualizations.querySelectorAll('.viz-card');
-            
-            vizCards.forEach(card => {
-                if (selectedType === 'all' || card.dataset.type === selectedType) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
+    const vizFilters = document.querySelectorAll(".viz-filter");
+    vizFilters.forEach((filter) => {
+      filter.addEventListener("click", () => {
+        vizFilters.forEach((f) => f.classList.remove("active"));
+        filter.classList.add("active");
+
+        const selectedType = filter.dataset.type;
+        const vizCards = visualizations.querySelectorAll(".viz-card");
+
+        vizCards.forEach((card) => {
+          if (selectedType === "all" || card.dataset.type === selectedType) {
+            card.classList.remove("hidden");
+          } else {
+            card.classList.add("hidden");
+          }
         });
+      });
     });
 
     // Load analysis from URL parameter
     function getAnalysisIdFromPath() {
-        const pathParts = window.location.pathname.split('/');
-        const analysisId = pathParts[pathParts.length - 1];
-        return analysisId && analysisId !== 'analysis' ? analysisId : null;
+      const pathParts = window.location.pathname.split("/");
+      const analysisId = pathParts[pathParts.length - 1];
+      return analysisId && analysisId !== "analysis" ? analysisId : null;
     }
 
     const analysisId = getAnalysisIdFromPath();
-    
+
     if (analysisId) {
-        console.log('Loading analysis with ID:', analysisId); // Debug log
-        loadAnalysis(analysisId);
+      loadAnalysis(analysisId);
     } else {
-        console.error('No analysis ID found in URL path'); // Debug log
-        const errorMessage = 'No analysis ID provided. Please provide an analysis ID in the URL path (e.g., /analysis/1)';
-        showError(errorMessage);
-        
-        // Hide loading overlay if it's visible
-        loadingOverlay.classList.add('hidden');
-        
-        // Show error state in the main content
-        analysisResults.innerHTML = `
+      const errorMessage =
+        "No analysis ID provided. Please provide an analysis ID in the URL path (e.g., /analysis/1)";
+      showError(errorMessage);
+      loadingOverlay.classList.add("hidden");
+      analysisResults.innerHTML = `
             <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -463,23 +546,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="ml-3">
                         <h3 class="text-lg font-medium text-red-800">Error Loading Analysis</h3>
                         <p class="text-sm text-red-700 mt-2">${errorMessage}</p>
-                        <div class="mt-4">
-                            <a href="/" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                <i class="fas fa-home mr-2"></i>
-                                Return to Home
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
         `;
     }
-});
+  });
 
-// Function to show error message
-function showError(message, details = null) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg z-50 error-message';
+  // Function to show error message
+  function showError(message, details = null) {
+    const errorDiv = document.createElement("div");
+    errorDiv.className =
+      "fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg z-50 error-message";
     errorDiv.innerHTML = `
         <div class="flex items-center">
             <div class="py-1">
@@ -490,115 +568,120 @@ function showError(message, details = null) {
             <div>
                 <p class="font-bold">Error</p>
                 <p class="text-sm">${message}</p>
-                ${details ? `<p class="text-xs mt-1">${details}</p>` : ''}
+                ${details ? `<p class="text-xs mt-1">${details}</p>` : ""}
             </div>
         </div>
     `;
     document.body.appendChild(errorDiv);
     setTimeout(() => {
-        errorDiv.remove();
+      errorDiv.remove();
     }, 5000);
-}
+  }
 </script>
 
 <style>
-/* Add hover scale effect */
-.hover-scale {
+  /* Add hover scale effect */
+  .hover-scale {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
+  }
 
-.hover-scale:hover {
+  .hover-scale:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
 
-/* Custom styles for markdown content */
-.prose {
+  /* Custom styles for markdown content */
+  .prose {
     max-width: none;
     color: #374151;
-}
+  }
 
-.prose h1, .prose h2, .prose h3 {
+  .prose h1,
+  .prose h2,
+  .prose h3 {
     color: #1f2937;
     font-weight: 700;
     line-height: 1.25;
     margin-top: 1.5em;
     margin-bottom: 0.75em;
-}
+  }
 
-.prose h1 {
+  .prose h1 {
     font-size: 2em;
     border-bottom: 2px solid #e5e7eb;
     padding-bottom: 0.5em;
-}
+  }
 
-.prose h2 {
+  .prose h2 {
     font-size: 1.5em;
     color: #2563eb;
-}
+  }
 
-.prose h3 {
+  .prose h3 {
     font-size: 1.25em;
     color: #4b5563;
-}
+  }
 
-.prose p {
+  .prose p {
     margin-top: 1em;
     margin-bottom: 1em;
     line-height: 1.75;
-}
+  }
 
-.prose ul, .prose ol {
+  .prose ul,
+  .prose ol {
     margin-top: 1em;
     margin-bottom: 1em;
     padding-left: 1.5em;
-}
+  }
 
-.prose ul {
+  .prose ul {
     list-style-type: none;
-}
+  }
 
-.prose ul li {
+  .prose ul li {
     position: relative;
     padding-left: 1.5em;
     margin-top: 0.5em;
     margin-bottom: 0.5em;
     line-height: 1.75;
-}
+  }
 
-.prose ul li:before {
+  .prose ul li:before {
     content: "•";
     color: #3b82f6;
     font-weight: bold;
     position: absolute;
     left: 0;
-}
+  }
 
-.prose ul li ul li:before {
+  .prose ul li ul li:before {
     content: "◦";
     color: #6b7280;
-}
+  }
 
-.prose ol {
+  .prose ol {
     list-style-type: decimal;
-}
+  }
 
-.prose ol li {
+  .prose ol li {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
     line-height: 1.75;
-}
+  }
 
-.prose code {
+  .prose code {
     background-color: #f3f4f6;
     padding: 0.2em 0.4em;
     border-radius: 0.25em;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      monospace;
     font-size: 0.875em;
     color: #1f2937;
-}
+  }
 
-.prose pre {
+  .prose pre {
     background-color: #f3f4f6;
     padding: 1em;
     border-radius: 0.5em;
@@ -606,15 +689,15 @@ function showError(message, details = null) {
     margin-top: 1em;
     margin-bottom: 1em;
     border: 1px solid #e5e7eb;
-}
+  }
 
-.prose pre code {
+  .prose pre code {
     background-color: transparent;
     padding: 0;
     color: #1f2937;
-}
+  }
 
-.prose blockquote {
+  .prose blockquote {
     border-left: 4px solid #3b82f6;
     padding-left: 1em;
     margin-left: 0;
@@ -622,102 +705,102 @@ function showError(message, details = null) {
     margin-bottom: 1em;
     color: #4b5563;
     font-style: italic;
-}
+  }
 
-.prose table {
+  .prose table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1em;
     margin-bottom: 1em;
     border: 1px solid #e5e7eb;
-}
+  }
 
-.prose th {
+  .prose th {
     background-color: #f3f4f6;
     padding: 0.75em;
     text-align: left;
     font-weight: 600;
     border-bottom: 2px solid #e5e7eb;
-}
+  }
 
-.prose td {
+  .prose td {
     padding: 0.75em;
     border-bottom: 1px solid #e5e7eb;
-}
+  }
 
-.prose hr {
+  .prose hr {
     border: 0;
     border-top: 2px solid #e5e7eb;
     margin: 2em 0;
-}
+  }
 
-.prose a {
+  .prose a {
     color: #3b82f6;
     text-decoration: underline;
     font-weight: 500;
-}
+  }
 
-.prose a:hover {
+  .prose a:hover {
     color: #2563eb;
-}
+  }
 
-.prose strong {
+  .prose strong {
     font-weight: 600;
     color: #1f2937;
-}
+  }
 
-.prose em {
+  .prose em {
     font-style: italic;
     color: #4b5563;
-}
+  }
 
-/* Special styling for analysis plan sections */
-.prose .analysis-section {
+  /* Special styling for analysis plan sections */
+  .prose .analysis-section {
     background-color: #f8fafc;
     border-radius: 0.5em;
     padding: 1.5em;
     margin: 1em 0;
     border: 1px solid #e5e7eb;
-}
+  }
 
-.prose .analysis-section h3 {
+  .prose .analysis-section h3 {
     margin-top: 0;
     color: #2563eb;
-}
+  }
 
-.prose .notes {
+  .prose .notes {
     background-color: #fef3c7;
     border-left: 4px solid #f59e0b;
     padding: 1em;
     margin: 1em 0;
     border-radius: 0.25em;
-}
+  }
 
-.prose .notes h4 {
+  .prose .notes h4 {
     color: #92400e;
     margin-top: 0;
     margin-bottom: 0.5em;
     font-weight: 600;
-}
+  }
 
-/* Highlight important points */
-.prose .highlight {
+  /* Highlight important points */
+  .prose .highlight {
     background-color: #dbeafe;
     padding: 0.2em 0.4em;
     border-radius: 0.25em;
     font-weight: 500;
-}
+  }
 
-/* Optional section styling */
-.prose .optional {
+  /* Optional section styling */
+  .prose .optional {
     opacity: 0.8;
     border-left: 4px solid #9ca3af;
     padding-left: 1em;
     margin-left: 0;
-}
+  }
 
-/* Visualization filter styles */
-.viz-filter {
+  /* Visualization filter styles */
+  .viz-filter {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
@@ -725,44 +808,45 @@ function showError(message, details = null) {
     transition: all 0.2s ease-in-out;
     background-color: #f3f4f6;
     color: #4b5563;
-}
+  }
 
-.viz-filter:hover {
+  .viz-filter:hover {
     background-color: #e5e7eb;
-}
+  }
 
-.viz-filter.active {
+  .viz-filter.active {
     background-color: #3b82f6;
     color: white;
-}
+  }
 
-.viz-filter.active:hover {
+  .viz-filter.active:hover {
     background-color: #2563eb;
-}
+  }
 
-/* Visualization card styles */
-.viz-card {
+  /* Visualization card styles */
+  .viz-card {
     transform: translateY(0);
     transition: all 0.3s ease-in-out;
     width: 100%;
     margin-bottom: 1rem;
-}
+  }
 
-.viz-card:hover {
+  .viz-card:hover {
     transform: translateY(-0.25rem);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
 
-.viz-card .aspect-video {
+  .viz-card .aspect-video {
     height: 300px;
     background-color: #f8fafc;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-}
+  }
 
-.viz-card img {
+  .viz-card img {
     transition: all 0.3s ease-in-out;
     opacity: 0;
     height: 300px;
@@ -770,9 +854,9 @@ function showError(message, details = null) {
     object-fit: contain;
     position: relative;
     z-index: 1;
-}
+  }
 
-.loading-overlay {
+  .loading-overlay {
     position: absolute;
     inset: 0;
     display: flex;
@@ -780,13 +864,13 @@ function showError(message, details = null) {
     justify-content: center;
     background-color: rgba(243, 244, 246, 0.75);
     z-index: 10;
-}
+  }
 
-.loading-overlay.hidden {
+  .loading-overlay.hidden {
     display: none;
-}
+  }
 
-.error-message {
+  .error-message {
     position: absolute;
     inset: 0;
     display: flex;
@@ -794,46 +878,46 @@ function showError(message, details = null) {
     justify-content: center;
     background-color: #f8fafc;
     z-index: 5;
-}
+  }
 
-.error-message.hidden {
+  .error-message.hidden {
     display: none;
-}
+  }
 
-/* Update grid layout for visualizations */
-#visualizations {
+  /* Update grid layout for visualizations */
+  #visualizations {
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
     padding: 1rem;
-}
+  }
 
-.viz-card {
+  .viz-card {
     flex: 1 1 calc(50% - 1.5rem);
     min-width: 300px;
     max-width: calc(50% - 1.5rem);
-}
+  }
 
-@media (max-width: 768px) {
+  @media (max-width: 768px) {
     .viz-card {
-        flex: 1 1 100%;
-        max-width: 100%;
+      flex: 1 1 100%;
+      max-width: 100%;
     }
-}
+  }
 
-/* Update card content padding */
-.viz-card .p-4 {
+  /* Update card content padding */
+  .viz-card .p-4 {
     padding: 1rem;
-}
+  }
 
-.viz-card h3 {
+  .viz-card h3 {
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
-}
+  }
 
-.viz-card p {
+  .viz-card p {
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
-}
+  }
 </style>
-{% endblock %} 
+{% endblock %}
