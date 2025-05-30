@@ -1,270 +1,778 @@
-{% extends "base.html" %} {% block content %}
-<div class="space-y-8">
-  <!-- Hero Section -->
-  <div class="text-center py-12">
-    <h1 class="text-4xl font-bold text-gray-900 mb-4">Welcome to EDA Agent</h1>
-    <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-      Your intelligent data analysis assistant. Upload your dataset and let AI
-      help you understand your data better.
-    </p>
-  </div>
+{% extends "base.html" %}
 
-  <!-- Upload Section -->
-  <div class="tab-content">
-    <div id="uploadContent" class="tab-pane active">
-      <div class="border-2 border-dashed border-gray-300 rounded-lg p-8">
-        <form id="uploadForm" class="space-y-6">
-          <div class="flex items-center justify-center">
-            <label
-              class="w-full flex flex-col items-center px-4 py-8 bg-gray-50 rounded-lg shadow-sm tracking-wide border border-blue-500 cursor-pointer hover:bg-blue-50 transition-colors"
-            >
-              <i class="fas fa-file-upload text-4xl text-blue-500 mb-3"></i>
-              <span class="text-lg font-medium text-gray-700"
-                >Select a file</span
-              >
-              <span class="text-sm text-gray-500 mt-1"
-                >CSV, XLSX, or XLS files</span
-              >
-              <input type="file" class="hidden" accept=".csv,.xlsx,.xls" />
-            </label>
-          </div>
-          <div class="flex justify-center">
-            <button
-              type="submit"
-              class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center"
-            >
-              <i class="fas fa-upload mr-2"></i>
-              Upload and Analyze
-            </button>
-          </div>
-        </form>
-      </div>
+{% block content %}
+<div class="space-y-8">
+    <!-- Hero Section -->
+    <div class="text-center py-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Welcome to EDA Agent</h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Your intelligent data analysis assistant. Upload your dataset and let AI help you understand your data better.
+        </p>
     </div>
-  </div>
+
+    <!-- Upload Section -->
+    <div class="tab-content">
+        <!-- Upload Tab -->
+        <div id="uploadContent" class="tab-pane active">
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8">
+                <form id="uploadForm" class="space-y-6">
+                    <div class="flex items-center justify-center">
+                        <label class="w-full flex flex-col items-center px-4 py-8 bg-gray-50 rounded-lg shadow-sm tracking-wide border border-blue-500 cursor-pointer hover:bg-blue-50 transition-colors">
+                            <i class="fas fa-file-upload text-4xl text-blue-500 mb-3"></i>
+                            <span class="text-lg font-medium text-gray-700">Select a file</span>
+                            <span class="text-sm text-gray-500 mt-1">CSV, XLSX, or XLS files</span>
+                            <input type="file" class="hidden" accept=".csv,.xlsx,.xls" />
+                        </label>
+                    </div>
+                    <div class="flex justify-center">
+                        <button type="submit" class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload and Analyze
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Latest Analysis Section -->
-<div
-  id="latestAnalysis"
-  class="bg-white shadow-lg rounded-xl p-8 hover-scale mt-8"
->
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-semibold flex items-center">
-      <i class="fas fa-clock text-blue-500 mr-2"></i>
-      Latest Analysis
-    </h2>
-    <a
-      href="/history"
-      class="text-blue-500 hover:text-blue-600 transition-colors flex items-center"
-    >
-      View All
-      <i class="fas fa-arrow-right ml-2"></i>
-    </a>
-  </div>
-  <div id="latestAnalysisContent" class="space-y-6">
-    {% if latest_analysis %}
-    <div>
-      <h3 class="text-lg font-bold">{{ latest_analysis[1] }}</h3>
-      <p class="text-sm text-gray-500">Created at: {{ latest_analysis[2] }}</p>
-      <a
-        href="/analysis/{{ latest_analysis[0] }}"
-        class="text-blue-500 hover:text-blue-600"
-      >
-        View Analysis
-      </a>
+  <!-- Latest Analysis Section -->
+  <div id="latestAnalysis" class="bg-white shadow-lg rounded-xl p-8 hover-scale mt-8">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold flex items-center">
+            <i class="fas fa-clock text-blue-500 mr-2"></i>
+            Latest Analysis
+        </h2>
+        <a href="/history" class="text-blue-500 hover:text-blue-600 transition-colors flex items-center">
+            View All
+            <i class="fas fa-arrow-right ml-2"></i>
+        </a>
     </div>
-    {% else %}
-    <p class="text-gray-500">No recent analysis available.</p>
-    {% endif %}
-  </div>
+    <div id="latestAnalysisContent" class="space-y-6">
+        <div class="animate-pulse">
+            <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+    </div>
 </div>
 
 <!-- Loading Overlay -->
-<div
-  id="loadingOverlay"
-  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
->
-  <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm mx-4">
-    <div
-      class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"
-    ></div>
-    <p class="text-gray-700 text-lg">Analyzing your data...</p>
-    <p class="text-gray-500 text-sm mt-2">This may take a few moments</p>
-  </div>
+<div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm mx-4">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <p class="text-gray-700 text-lg">Analyzing your data...</p>
+        <p class="text-gray-500 text-sm mt-2">This may take a few moments</p>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-  marked.setOptions({
-    breaks: true,
-    gfm: true,
-    headerIds: true,
-    mangle: false,
-    sanitize: true, // Enable sanitization to prevent XSS
-    smartLists: true,
-    smartypants: true,
-  });
+let currentAnalysisId = null;
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const uploadForm = document.getElementById("uploadForm");
-    const loadingOverlay = document.getElementById("loadingOverlay");
+document.addEventListener('DOMContentLoaded', () => {
+    const uploadForm = document.getElementById('uploadForm');
+    const analysisResults = document.getElementById('analysisResults');
+    const analysisPlan = document.getElementById('analysisPlan');
+    const visualizations = document.getElementById('visualizations');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const fileInput = document.querySelector('input[type="file"]');
+    const finalAnalysisSection = document.getElementById('finalAnalysisSection');
+    const finalAnalysisContent = document.getElementById('finalAnalysis');
+    const numericStats = document.getElementById('numericStats');
+    const categoricalStats = document.getElementById('categoricalStats');
+    const anomaliesGrid = document.getElementById('anomaliesGrid');
+    const cleaningSuggestions = document.getElementById('cleaningSuggestions');
 
-    uploadForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const fileInput = document.querySelector('input[type="file"]');
-      const file = fileInput.files[0];
+    // Configure marked options
+    marked.setOptions({
+        breaks: true,
+        gfm: true,
+        headerIds: true,
+        mangle: false,
+        sanitize: false,
+        smartLists: true,
+        smartypants: true
+    });
 
-      if (!file) {
-        alert("Please select a file to upload.");
-        return;
-      }
+    // Function to show upload tab
+    window.showUploadTab = function() {
+        analysisResults.classList.add('hidden');
+        document.getElementById('uploadContent').classList.remove('hidden');
+    };
 
-      loadingOverlay.classList.remove("hidden");
+    // Function to load analysis
+    async function loadAnalysis(analysisId) {
+        try {
+            loadingOverlay.classList.remove('hidden');
+            const response = await fetch(`/analysis/${analysisId}`, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                currentAnalysisId = analysisId;
+                displayAnalysis(data);
+                // Switch to analysis results view
+                analysisResults.classList.remove('hidden');
+                document.getElementById('uploadContent').classList.add('hidden');
+            } else {
+                console.error('Analysis load error:', data.error);
+                showError(data.error || 'Failed to load analysis');
+            }
+        } catch (error) {
+            console.error('Analysis load error:', error);
+            showError('Error loading analysis: ' + error.message);
+        } finally {
+            loadingOverlay.classList.add('hidden');
+        }
+    }
 
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
+    // Function to display analysis
+    function displayAnalysis(data) {
+        console.log('Displaying analysis data:', data); // Debug log
 
-        const response = await fetch("/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to upload file.");
+        // Display final analysis if available
+        if (data.final_analysis) {
+            try {
+                finalAnalysisContent.innerHTML = marked.parse(data.final_analysis);
+                finalAnalysisSection.classList.remove('hidden');
+            } catch (markdownError) {
+                console.error('Markdown parsing error:', markdownError);
+                finalAnalysisContent.innerHTML = `<div class="text-red-500">Error rendering final analysis: ${markdownError.message}</div>`;
+                finalAnalysisSection.classList.remove('hidden');
+            }
+        } else {
+            finalAnalysisSection.classList.add('hidden');
+        }
+        
+        // Display analysis plan
+        if (data.analysis_plan) {
+            try {
+                analysisPlan.innerHTML = marked.parse(data.analysis_plan);
+            } catch (markdownError) {
+                console.error('Markdown parsing error:', markdownError);
+                analysisPlan.innerHTML = `<div class="text-red-500">Error rendering analysis plan: ${markdownError.message}</div>`;
+            }
+        } else {
+            analysisPlan.innerHTML = '<p class="text-gray-500">No analysis plan available</p>';
+        }
+        
+        // Display visualizations
+        visualizations.innerHTML = '';
+        if (data.visualizations && Array.isArray(data.visualizations)) {
+            data.visualizations.forEach(viz => {
+                const vizCard = createVizCard(viz);
+                visualizations.appendChild(vizCard);
+            });
+        } else {
+            visualizations.innerHTML = '<p class="text-gray-500">No visualizations available</p>';
         }
 
-        const data = await response.json();
-        window.location.href = `/analysis/${data.analysis_id}`;
-      } catch (error) {
-        alert(error.message);
-      } finally {
-        loadingOverlay.classList.add("hidden");
-      }
+        // Display statistical summary
+        if (data.statistical_summary) {
+            // Update numeric statistics
+            if (data.statistical_summary.numeric) {
+                const table = numericStats.querySelector('table');
+                const thead = table.querySelector('thead tr');
+                const tbody = table.querySelector('tbody');
+                
+                // Update header
+                thead.innerHTML = `
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metric</th>
+                    ${Object.keys(data.statistical_summary.numeric).map(col => `
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${col}</th>
+                    `).join('')}
+                `;
+                
+                // Update body
+                tbody.innerHTML = '';
+                ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'].forEach(metric => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${metric}</td>
+                        ${Object.keys(data.statistical_summary.numeric).map(col => `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${metric !== 'count' ? 
+                                    Number(data.statistical_summary.numeric[col][metric]).toFixed(2) : 
+                                    data.statistical_summary.numeric[col][metric]}
+                            </td>
+                        `).join('')}
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                numericStats.innerHTML = '<p class="text-gray-500">No numeric statistics available</p>';
+            }
+
+            // Update categorical statistics
+            if (data.statistical_summary.categorical) {
+                const grid = categoricalStats.querySelector('.grid');
+                grid.innerHTML = '';
+                Object.entries(data.statistical_summary.categorical).forEach(([col, stats]) => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-4 rounded-lg shadow';
+                    card.innerHTML = `
+                        <h4 class="font-medium text-gray-900 mb-2">${col}</h4>
+                        <p class="text-sm text-gray-500 mb-2">Unique Values: ${stats.unique_values}</p>
+                        <div class="space-y-2">
+                            <p class="text-sm font-medium text-gray-700">Most Common:</p>
+                            <ul class="text-sm text-gray-600">
+                                ${Object.entries(stats.most_common).map(([value, count]) => `
+                                    <li class="flex justify-between">
+                                        <span>${value}</span>
+                                        <span class="font-medium">${count}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } else {
+                categoricalStats.innerHTML = '<p class="text-gray-500">No categorical statistics available</p>';
+            }
+        }
+
+        // Display anomalies
+        if (data.anomalies && Object.keys(data.anomalies).length > 0) {
+            anomaliesGrid.innerHTML = '';
+            Object.entries(data.anomalies).forEach(([col, stats]) => {
+                const card = document.createElement('div');
+                card.className = 'bg-yellow-50 p-6 rounded-lg border border-yellow-200';
+                card.innerHTML = `
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-2">${col}</h3>
+                    <div class="space-y-2">
+                        <p class="text-sm text-yellow-700">
+                            <span class="font-medium">Count:</span> ${stats.count}
+                        </p>
+                        <p class="text-sm text-yellow-700">
+                            <span class="font-medium">Percentage:</span> ${stats.percentage.toFixed(2)}%
+                        </p>
+                    </div>
+                `;
+                anomaliesGrid.appendChild(card);
+            });
+        } else {
+            anomaliesGrid.innerHTML = '<p class="text-gray-500">No anomalies detected</p>';
+        }
+
+        // Display cleaning suggestions
+        if (data.cleaning_suggestions && data.cleaning_suggestions.length > 0) {
+            cleaningSuggestions.innerHTML = '';
+            data.cleaning_suggestions.forEach(suggestion => {
+                const card = document.createElement('div');
+                card.className = 'bg-green-50 p-6 rounded-lg border border-green-200';
+                card.innerHTML = `
+                    <h3 class="text-lg font-semibold text-green-800 mb-2">
+                        ${getSuggestionIcon(suggestion.type)}${getSuggestionTitle(suggestion.type)}
+                    </h3>
+                    <p class="text-sm text-green-700 mb-4">${suggestion.message}</p>
+                    ${suggestion.details ? `
+                        <div class="bg-white p-4 rounded-lg">
+                            <pre class="text-sm text-green-800 overflow-x-auto">${JSON.stringify(suggestion.details, null, 2)}</pre>
+                        </div>
+                    ` : ''}
+                `;
+                cleaningSuggestions.appendChild(card);
+            });
+        } else {
+            cleaningSuggestions.innerHTML = '<p class="text-gray-500">No cleaning suggestions available</p>';
+        }
+
+        // Show the analysis results section
+        analysisResults.classList.remove('hidden');
+        
+        // Scroll to results
+        analysisResults.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Helper function to get suggestion icon
+    function getSuggestionIcon(type) {
+        switch (type) {
+            case 'missing_values':
+                return '<i class="fas fa-exclamation-circle mr-2"></i>';
+            case 'duplicates':
+                return '<i class="fas fa-copy mr-2"></i>';
+            case 'outliers':
+                return '<i class="fas fa-chart-line mr-2"></i>';
+            default:
+                return '';
+        }
+    }
+
+    // Helper function to get suggestion title
+    function getSuggestionTitle(type) {
+        switch (type) {
+            case 'missing_values':
+                return 'Missing Values';
+            case 'duplicates':
+                return 'Duplicate Rows';
+            case 'outliers':
+                return 'Outliers';
+            default:
+                return type;
+        }
+    }
+
+    // Function to create visualization card
+    function createVizCard(viz) {
+        console.log('Creating visualization card:', viz); // Debug log
+        
+        const card = document.createElement('div');
+        card.className = 'viz-card';
+        card.dataset.type = viz.type;
+        
+        // Check if image_data exists and is valid
+        if (!viz.image_data) {
+            console.error('No image data found for visualization:', viz.title);
+            return card; // Return card without image if no data
+        }
+        
+        card.innerHTML = `
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="p-4">
+                    <h3 class="font-medium text-gray-900 mb-2">${viz.title}</h3>
+                    <p class="text-sm text-gray-500 mb-4">${viz.type}</p>
+                    <div class="relative aspect-video bg-gray-100 rounded overflow-hidden">
+                        <img 
+                            src="data:image/png;base64,${viz.image_data}" 
+                            alt="${viz.title}" 
+                            class="w-full h-full object-contain"
+                            onload="this.style.opacity = '1'; this.parentElement.querySelector('.loading-overlay').classList.add('hidden')"
+                            onerror="this.onerror=null; this.parentElement.classList.add('error'); this.style.display='none'; this.parentElement.querySelector('.error-message').classList.remove('hidden')"
+                            style="opacity: 0; transition: opacity 0.3s ease-in-out;"
+                        >
+                        <div class="loading-overlay absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        </div>
+                        <div class="error-message hidden absolute inset-0 flex items-center justify-center bg-gray-100">
+                            <div class="text-center p-4">
+                                <i class="fas fa-exclamation-circle text-red-500 text-2xl mb-2"></i>
+                                <p class="text-sm text-gray-600">Failed to load visualization</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+
+    // Handle file upload
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            showError('Please select a file to upload');
+            return;
+        }
+
+        // Validate file type
+        const validTypes = ['.csv', '.xlsx', '.xls'];
+        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        if (!validTypes.includes(fileExtension)) {
+            showError('Invalid file type', 'Please upload a CSV, XLSX, or XLS file');
+            return;
+        }
+
+        // Validate file size (max 10MB)
+        const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+        if (file.size > maxSize) {
+            showError('File too large', 'Maximum file size is 10MB');
+            return;
+        }
+
+        // Show loading overlay
+        loadingOverlay.classList.remove('hidden');
+        const submitButton = uploadForm.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Clear file input
+                fileInput.value = '';
+                const label = fileInput.parentElement;
+                label.querySelector('span:nth-child(2)').textContent = 'Select a file';
+                
+                // Show success message
+                showSuccess('File uploaded and analyzed successfully');
+                
+                // Load the latest analysis to display
+                await loadLatestAnalysis();
+                
+                // Redirect to the analysis page
+                window.location.href = `/analysis/${data.analysis_id}`;
+            } else {
+                const errorMessage = data.error || 'An error occurred while processing your request';
+                const errorDetails = data.details || null;
+                showError(errorMessage, errorDetails);
+            }
+        } catch (error) {
+            showError('Error uploading file: ' + error.message);
+        } finally {
+            loadingOverlay.classList.add('hidden');
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+        }
     });
-  });
+
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+        const fileName = e.target.files[0]?.name;
+        if (fileName) {
+            const label = e.target.parentElement;
+            label.querySelector('span:nth-child(2)').textContent = fileName;
+        }
+    });
+
+    // Add visualization filtering functionality
+    const vizFilters = document.querySelectorAll('.viz-filter');
+    vizFilters.forEach(filter => {
+        filter.addEventListener('click', () => {
+            vizFilters.forEach(f => f.classList.remove('active'));
+            filter.classList.add('active');
+            
+            const selectedType = filter.dataset.type;
+            const vizCards = visualizations.querySelectorAll('.viz-card');
+            
+            vizCards.forEach(card => {
+                if (selectedType === 'all' || card.dataset.type === selectedType) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        });
+    });
+
+    // Load last analysis if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const analysisId = urlParams.get('analysis_id');
+    if (analysisId) {
+        loadAnalysis(analysisId);
+    }
+
+    // Function to load latest analysis
+    async function loadLatestAnalysis() {
+        try {
+            const response = await fetch('/history', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('History data:', data); // Debug log
+            
+            if (data.analyses && data.analyses.length > 0) {
+                const latestAnalysis = data.analyses[0];
+                const analysisContent = document.getElementById('latestAnalysisContent');
+                
+                // Format the date
+                const date = new Date(latestAnalysis.created_at);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // Fetch the full analysis details
+                const analysisResponse = await fetch(`/analysis/${latestAnalysis.id}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!analysisResponse.ok) {
+                    throw new Error('Failed to fetch analysis details');
+                }
+                
+                const analysisData = await analysisResponse.json();
+                console.log('Analysis data:', analysisData); // Debug log
+
+                // Extract insights from the analysis data
+                const dfContext = analysisData.df_context;
+                const stats = analysisData.statistical_summary;
+                
+                // Get numeric and categorical columns
+                const numericColumns = stats.numeric ? Object.keys(stats.numeric) : [];
+                const categoricalColumns = stats.categorical ? Object.keys(stats.categorical) : [];
+                
+                // Get total records and columns
+                const totalRecords = numericColumns.length > 0 ? stats.numeric[numericColumns[0]].count : 0;
+                const totalColumns = numericColumns.length + categoricalColumns.length;
+
+                // Check for missing values
+                const hasMissingValues = analysisData.cleaning_suggestions && 
+                    analysisData.cleaning_suggestions.some(s => s.type === 'missing_values');
+
+                analysisContent.innerHTML = `
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">${latestAnalysis.filename}</h3>
+                                <p class="text-sm text-gray-500">Analyzed on ${formattedDate}</p>
+                            </div>
+                            <a href="/analysis/${latestAnalysis.id}" class="text-blue-500 hover:text-blue-600 transition-colors">
+                                View Details
+                            </a>
+                        </div>
+                        
+                        <!-- Key Insights Section -->
+                        <div class="space-y-3">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="flex items-start">
+                                    <i class="fas fa-database text-blue-500 mt-1 mr-2"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-600">${totalRecords} records with ${totalColumns} columns</p>
+                                        <p class="text-xs text-gray-500">${hasMissingValues ? 'Contains missing values' : 'Complete dataset with no missing values'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            ${numericColumns.length > 0 ? `
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-chart-line text-green-500 mt-1 mr-2"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Numeric Columns</p>
+                                            <p class="text-xs text-gray-500">${numericColumns.map(col => `${col} (${stats.numeric[col].dtype || 'numeric'})`).join(', ')}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${categoricalColumns.length > 0 ? `
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-tags text-purple-500 mt-1 mr-2"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Categorical Columns</p>
+                                            <p class="text-xs text-gray-500">${categoricalColumns.map(col => `${col} (${stats.categorical[col].dtype || 'categorical'})`).join(', ')}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${analysisData.anomalies && Object.keys(analysisData.anomalies).length > 0 ? `
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-2"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Anomalies Detected</p>
+                                            <p class="text-xs text-gray-500">${Object.keys(analysisData.anomalies).length} columns with potential anomalies</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('latestAnalysisContent').innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">No analyses available yet. Upload your first dataset to get started!</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error loading latest analysis:', error);
+            document.getElementById('latestAnalysisContent').innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-red-500">Error loading latest analysis. Please try again later.</p>
+                    <p class="text-sm text-gray-500 mt-2">${error.message}</p>
+                </div>
+            `;
+        }
+    }
+
+    // Load latest analysis when page loads
+    loadLatestAnalysis();
+});
+
+// Function to show error message
+function showError(message, details = null) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg z-50 error-message';
+    errorDiv.innerHTML = `
+        <div class="flex items-center">
+            <div class="py-1">
+                <svg class="h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold">Error</p>
+                <p class="text-sm">${message}</p>
+                ${details ? `<p class="text-xs mt-1">${details}</p>` : ''}
+            </div>
+        </div>
+    `;
+    document.body.appendChild(errorDiv);
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 5000);
+}
+
+// Function to show success message
+function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg z-50 error-message';
+    successDiv.innerHTML = `
+        <div class="flex items-center">
+            <div class="py-1">
+                <svg class="h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold">Success</p>
+                <p class="text-sm">${message}</p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(successDiv);
+    setTimeout(() => {
+        successDiv.remove();
+    }, 3000);
+}
 </script>
 
 <style>
-  /* Tab styles */
-  .tab-button {
+/* Tab styles */
+.tab-button {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
     font-weight: 500;
     color: #6b7280;
     border-bottom: 2px solid transparent;
     transition: all 0.2s ease-in-out;
-  }
+}
 
-  .tab-button:hover {
+.tab-button:hover {
     color: #374151;
     border-bottom-color: #d1d5db;
-  }
+}
 
-  .tab-button.active {
+.tab-button.active {
     color: #2563eb;
     border-bottom-color: #3b82f6;
-  }
+}
 
-  .tab-pane {
+.tab-pane {
     transition: opacity 0.3s ease-in-out;
-  }
+}
 
-  .tab-pane.active {
+.tab-pane.active {
     opacity: 1;
-  }
+}
 
-  /* Custom styles for markdown content */
-  .prose {
+/* Custom styles for markdown content */
+.prose {
     max-width: none;
     color: #374151;
-  }
+}
 
-  .prose h1,
-  .prose h2,
-  .prose h3 {
+.prose h1, .prose h2, .prose h3 {
     color: #1f2937;
     font-weight: 700;
     line-height: 1.25;
     margin-top: 1.5em;
     margin-bottom: 0.75em;
-  }
+}
 
-  .prose h1 {
+.prose h1 {
     font-size: 2em;
     border-bottom: 2px solid #e5e7eb;
     padding-bottom: 0.5em;
-  }
+}
 
-  .prose h2 {
+.prose h2 {
     font-size: 1.5em;
     color: #2563eb;
-  }
+}
 
-  .prose h3 {
+.prose h3 {
     font-size: 1.25em;
     color: #4b5563;
-  }
+}
 
-  .prose p {
+.prose p {
     margin-top: 1em;
     margin-bottom: 1em;
     line-height: 1.75;
-  }
+}
 
-  .prose ul,
-  .prose ol {
+.prose ul, .prose ol {
     margin-top: 1em;
     margin-bottom: 1em;
     padding-left: 1.5em;
-  }
+}
 
-  .prose ul {
+.prose ul {
     list-style-type: none;
-  }
+}
 
-  .prose ul li {
+.prose ul li {
     position: relative;
     padding-left: 1.5em;
     margin-top: 0.5em;
     margin-bottom: 0.5em;
     line-height: 1.75;
-  }
+}
 
-  .prose ul li:before {
+.prose ul li:before {
     content: "•";
     color: #3b82f6;
     font-weight: bold;
     position: absolute;
     left: 0;
-  }
+}
 
-  .prose ul li ul li:before {
+.prose ul li ul li:before {
     content: "◦";
     color: #6b7280;
-  }
+}
 
-  .prose ol {
+.prose ol {
     list-style-type: decimal;
-  }
+}
 
-  .prose ol li {
+.prose ol li {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
     line-height: 1.75;
-  }
+}
 
-  .prose code {
+.prose code {
     background-color: #f3f4f6;
     padding: 0.2em 0.4em;
     border-radius: 0.25em;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-      monospace;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.875em;
     color: #1f2937;
-  }
+}
 
-  .prose pre {
+.prose pre {
     background-color: #f3f4f6;
     padding: 1em;
     border-radius: 0.5em;
@@ -272,15 +780,15 @@
     margin-top: 1em;
     margin-bottom: 1em;
     border: 1px solid #e5e7eb;
-  }
+}
 
-  .prose pre code {
+.prose pre code {
     background-color: transparent;
     padding: 0;
     color: #1f2937;
-  }
+}
 
-  .prose blockquote {
+.prose blockquote {
     border-left: 4px solid #3b82f6;
     padding-left: 1em;
     margin-left: 0;
@@ -288,119 +796,118 @@
     margin-bottom: 1em;
     color: #4b5563;
     font-style: italic;
-  }
+}
 
-  .prose table {
+.prose table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1em;
     margin-bottom: 1em;
     border: 1px solid #e5e7eb;
-  }
+}
 
-  .prose th {
+.prose th {
     background-color: #f3f4f6;
     padding: 0.75em;
     text-align: left;
     font-weight: 600;
     border-bottom: 2px solid #e5e7eb;
-  }
+}
 
-  .prose td {
+.prose td {
     padding: 0.75em;
     border-bottom: 1px solid #e5e7eb;
-  }
+}
 
-  .prose hr {
+.prose hr {
     border: 0;
     border-top: 2px solid #e5e7eb;
     margin: 2em 0;
-  }
+}
 
-  .prose a {
+.prose a {
     color: #3b82f6;
     text-decoration: underline;
     font-weight: 500;
-  }
+}
 
-  .prose a:hover {
+.prose a:hover {
     color: #2563eb;
-  }
+}
 
-  .prose strong {
+.prose strong {
     font-weight: 600;
     color: #1f2937;
-  }
+}
 
-  .prose em {
+.prose em {
     font-style: italic;
     color: #4b5563;
-  }
+}
 
-  /* Special styling for analysis plan sections */
-  .prose .analysis-section {
+/* Special styling for analysis plan sections */
+.prose .analysis-section {
     background-color: #f8fafc;
     border-radius: 0.5em;
     padding: 1.5em;
     margin: 1em 0;
     border: 1px solid #e5e7eb;
-  }
+}
 
-  .prose .analysis-section h3 {
+.prose .analysis-section h3 {
     margin-top: 0;
     color: #2563eb;
-  }
+}
 
-  .prose .notes {
+.prose .notes {
     background-color: #fef3c7;
     border-left: 4px solid #f59e0b;
     padding: 1em;
     margin: 1em 0;
     border-radius: 0.25em;
-  }
+}
 
-  .prose .notes h4 {
+.prose .notes h4 {
     color: #92400e;
     margin-top: 0;
     margin-bottom: 0.5em;
     font-weight: 600;
-  }
+}
 
-  /* Highlight important points */
-  .prose .highlight {
+/* Highlight important points */
+.prose .highlight {
     background-color: #dbeafe;
     padding: 0.2em 0.4em;
     border-radius: 0.25em;
     font-weight: 500;
-  }
+}
 
-  /* Optional section styling */
-  .prose .optional {
+/* Optional section styling */
+.prose .optional {
     opacity: 0.8;
     border-left: 4px solid #9ca3af;
     padding-left: 1em;
     margin-left: 0;
-  }
+}
 
-  /* Error and success message styles */
-  .error-message,
-  .success-message {
+/* Error and success message styles */
+.error-message, .success-message {
     animation: slideIn 0.3s ease-out;
-  }
+}
 
-  @keyframes slideIn {
+@keyframes slideIn {
     from {
-      transform: translateX(100%);
-      opacity: 0;
+        transform: translateX(100%);
+        opacity: 0;
     }
     to {
-      transform: translateX(0);
-      opacity: 1;
+        transform: translateX(0);
+        opacity: 1;
     }
-  }
+}
 
-  /* Loading overlay styles */
-  .loading-overlay {
+/* Loading overlay styles */
+.loading-overlay {
     position: absolute;
     inset: 0;
     display: flex;
@@ -408,60 +915,59 @@
     justify-content: center;
     background-color: rgba(243, 244, 246, 0.75);
     z-index: 10;
-  }
+}
 
-  .loading-spinner {
+.loading-spinner {
     animation: spin 1s linear infinite;
-  }
+}
 
-  @keyframes spin {
+@keyframes spin {
     from {
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
     to {
-      transform: rotate(360deg);
+        transform: rotate(360deg);
     }
-  }
+}
 
-  /* Error state styles */
-  .error-state {
+/* Error state styles */
+.error-state {
     border-color: #ef4444;
     background-color: #fee2e2;
-  }
+}
 
-  .error-state:focus {
+.error-state:focus {
     border-color: #dc2626;
     box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
-  }
+}
 
-  /* Success state styles */
-  .success-state {
+/* Success state styles */
+.success-state {
     border-color: #10b981;
     background-color: #d1fae5;
-  }
+}
 
-  .success-state:focus {
+.success-state:focus {
     border-color: #059669;
     box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
-  }
+}
 
-  /* Add styles for loading saved data */
-  .loading-saved {
+/* Add styles for loading saved data */
+.loading-saved {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
+}
 
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
     }
     50% {
-      opacity: 0.5;
+        opacity: .5;
     }
-  }
+}
 
-  /* Visualization filter styles */
-  .viz-filter {
+/* Visualization filter styles */
+.viz-filter {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
@@ -469,45 +975,44 @@
     transition: all 0.2s ease-in-out;
     background-color: #f3f4f6;
     color: #4b5563;
-  }
+}
 
-  .viz-filter:hover {
+.viz-filter:hover {
     background-color: #e5e7eb;
-  }
+}
 
-  .viz-filter.active {
+.viz-filter.active {
     background-color: #3b82f6;
     color: white;
-  }
+}
 
-  .viz-filter.active:hover {
+.viz-filter.active:hover {
     background-color: #2563eb;
-  }
+}
 
-  /* Visualization card styles */
-  .viz-card {
+/* Visualization card styles */
+.viz-card {
     transform: translateY(0);
     transition: all 0.3s ease-in-out;
     width: 100%;
     margin-bottom: 1rem;
-  }
+}
 
-  .viz-card:hover {
+.viz-card:hover {
     transform: translateY(-0.25rem);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-      0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
 
-  .viz-card .aspect-video {
+.viz-card .aspect-video {
     height: 300px;
     background-color: #f8fafc;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-  }
+}
 
-  .viz-card img {
+.viz-card img {
     transition: all 0.3s ease-in-out;
     opacity: 0;
     height: 300px;
@@ -515,9 +1020,9 @@
     object-fit: contain;
     position: relative;
     z-index: 1;
-  }
+}
 
-  .loading-overlay {
+.loading-overlay {
     position: absolute;
     inset: 0;
     display: flex;
@@ -525,13 +1030,13 @@
     justify-content: center;
     background-color: rgba(243, 244, 246, 0.75);
     z-index: 10;
-  }
+}
 
-  .loading-overlay.hidden {
+.loading-overlay.hidden {
     display: none;
-  }
+}
 
-  .error-message {
+.error-message {
     position: absolute;
     inset: 0;
     display: flex;
@@ -539,73 +1044,73 @@
     justify-content: center;
     background-color: #f8fafc;
     z-index: 5;
-  }
+}
 
-  .error-message.hidden {
+.error-message.hidden {
     display: none;
-  }
+}
 
-  /* Update grid layout for visualizations */
-  #visualizations {
+/* Update grid layout for visualizations */
+#visualizations {
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
     padding: 1rem;
-  }
+}
 
-  .viz-card {
+.viz-card {
     flex: 1 1 calc(50% - 1.5rem);
     min-width: 300px;
     max-width: calc(50% - 1.5rem);
-  }
+}
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
     .viz-card {
-      flex: 1 1 100%;
-      max-width: 100%;
+        flex: 1 1 100%;
+        max-width: 100%;
     }
-  }
+}
 
-  /* Update card content padding */
-  .viz-card .p-4 {
+/* Update card content padding */
+.viz-card .p-4 {
     padding: 1rem;
-  }
+}
 
-  .viz-card h3 {
+.viz-card h3 {
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
-  }
+}
 
-  .viz-card p {
+.viz-card p {
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
-  }
+}
 
-  /* Responsive grid adjustments */
-  @media (max-width: 640px) {
+/* Responsive grid adjustments */
+@media (max-width: 640px) {
     .viz-card {
-      width: 100%;
+        width: 100%;
     }
-  }
+}
 
-  @media (min-width: 641px) and (max-width: 1024px) {
+@media (min-width: 641px) and (max-width: 1024px) {
     .viz-card {
-      width: 50%;
+        width: 50%;
     }
-  }
+}
 
-  @media (min-width: 1025px) {
+@media (min-width: 1025px) {
     .viz-card {
-      width: 33.333333%;
+        width: 33.333333%;
     }
-  }
+}
 
-  /* Add styles for line clamping */
-  .line-clamp-3 {
+/* Add styles for line clamping */
+.line-clamp-3 {
     display: -webkit-box;
     --webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
+}
 </style>
-{% endblock %}
+{% endblock %} 
