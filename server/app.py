@@ -74,13 +74,11 @@ async def chat():
         if not data or 'message' not in data:
             return jsonify({'error': 'Missing message field'}), 400
             
-        # Sanitize input
-        data['message'] = clean(data['message'])
-        session_id = clean(data.get('session_id', ''))
-        
+        # Get or create chat session
+        session_id = data.get('session_id')
         if not session_id:
             session_id = db.create_chat_session()
-        
+            
         # Get conversation history from database
         chat_history = db.get_chat_history(session_id)
         conversation_history = [
@@ -103,7 +101,7 @@ async def chat():
             'session_id': session_id
         })
     except Exception as e:
-        pass  # Removed: print(f"Error in chat: {str(e)}")
+        print(f"Error in chat: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/chat/sessions', methods=['GET'])

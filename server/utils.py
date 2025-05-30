@@ -420,7 +420,6 @@ async def chat_with_dataset(query, df_context=None, conversation_history=None):
             headers = {
                 "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}",
                 "Content-Type": "application/json",
-                "HTTP-Referer": "https://github.com/your-repo",
                 "X-Title": "Chat Assistant"
             }
             
@@ -434,8 +433,7 @@ async def chat_with_dataset(query, df_context=None, conversation_history=None):
             response = requests.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers=headers,
-                json=data,
-                timeout=15
+                json=data
             )
             
             if response.status_code == 200:
