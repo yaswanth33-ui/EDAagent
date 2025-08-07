@@ -13,11 +13,18 @@ from database import Database
 import logging
 from logging.handlers import RotatingFileHandler
 from bleach import clean
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback-secret-key-change-in-production')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
 db = Database()
 
-# Configure logging
+
 handler = RotatingFileHandler('server.log', maxBytes=100000, backupCount=3)
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -160,7 +167,6 @@ async def upload_file():
         if file.filename == '':
             return jsonify({'error': 'No file selected'}), 400
 
-        # Read the file
         try:
             if file.filename.endswith('.csv'):
                 df = pd.read_csv(file)
@@ -354,6 +360,11 @@ def serve_image(analysis_id, viz_id):
 
 if __name__ == '__main__':
     try:
-        app.run(debug=False, host='0.0.0.0', port=5000)
+        # Get port from environment variable for cloud deployment compatibility
+        port = int(os.environ.get('PORT', 5000))
+        debug = os.environ.get('FLASK_ENV') != 'production'
+        
+        app.run(debug=debug, host='0.0.0.0', port=port)
     except Exception as e:
         app.logger.error(f"Application failed to start: {str(e)}")
+        raise
