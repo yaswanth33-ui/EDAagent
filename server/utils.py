@@ -13,7 +13,7 @@ import logging
 matplotlib.use('Agg')
 
 
-MODEL = "deepseek/deepseek-chat-v3-0324:free"
+MODEL = "meta-llama/llama-3.3-70b-instruct:free"
 MODEL_AVAILABLE = True
 
 # Configure logging

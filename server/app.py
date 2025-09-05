@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file, make_response
+from flask import Flask, render_template, request, jsonify, send_file, make_response, send_from_directory
 import pandas as pd
 import io
 import os
@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../frontend/templates')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
@@ -357,6 +357,15 @@ def serve_image(analysis_id, viz_id):
     except Exception as e:
         pass  # Removed: print(f"Error serving image: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+# Serve static files from the frontend directory
+@app.route('/<path:path>', methods=['GET'])
+def serve_frontend(path):
+    return send_from_directory('../frontend', path)
+
+@app.route('/', methods=['GET'])
+def serve_index():
+    return send_from_directory('../frontend', 'index.html')
 
 if __name__ == '__main__':
     try:
