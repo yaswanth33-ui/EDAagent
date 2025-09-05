@@ -364,11 +364,14 @@ app.static_url_path = '/static'
 
 if __name__ == '__main__':
     try:
-        # Get port from environment variable for cloud deployment compatibility
+        # Get port from environment variable for Replit compatibility
         port = int(os.environ.get('PORT', 5000))
+        # In Replit, we want to make sure the app is accessible
+        host = '0.0.0.0'
         debug = os.environ.get('FLASK_ENV') != 'production'
         
-        app.run(debug=debug, host='0.0.0.0', port=port)
+        print(f"Starting server on {host}:{port}")
+        app.run(debug=debug, host=host, port=port)
     except Exception as e:
         app.logger.error(f"Application failed to start: {str(e)}")
         raise

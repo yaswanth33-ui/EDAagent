@@ -1,0 +1,16 @@
+run = "cd server && python app.py"
+language = "python"
+
+[nix]
+channel = "stable-22_11"
+
+[env]
+PYTHONPATH = "/home/runner/${REPL_SLUG}"
+
+[packager]
+ignoredPackages = ["unit_tests"]
+
+[packager.features]
+enabledForHosting = true
+packageSearch = true
+guessImports = true
