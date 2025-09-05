@@ -358,14 +358,9 @@ def serve_image(analysis_id, viz_id):
         pass  # Removed: print(f"Error serving image: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# Serve static files from the frontend directory
-@app.route('/<path:path>', methods=['GET'])
-def serve_frontend(path):
-    return send_from_directory('../frontend', path)
-
-@app.route('/', methods=['GET'])
-def serve_index():
-    return send_from_directory('../frontend', 'index.html')
+# Configure static files for Heroku deployment
+app.static_folder = '../frontend/static'
+app.static_url_path = '/static'
 
 if __name__ == '__main__':
     try:
