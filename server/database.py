@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class Database:
-    def __init__(self, db_path='eda_agent.db'):
-        self.db_path = db_path
+    def __init__(self, db_path=None):
+        self.db_path = db_path or os.environ.get('DATABASE_PATH', 'eda_agent.db')
         self.init_db()
 
     def init_db(self):

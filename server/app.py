@@ -5,6 +5,7 @@ import os
 import sqlite3
 import atexit
 import signal
+import sys
 from utils import (
     df_to_str, generate_visuals, get_statistical_summary,
     detect_anomalies, get_cleaning_suggestions, ai_text_analysis, chat_with_dataset
@@ -14,6 +15,15 @@ import logging
 from logging.handlers import RotatingFileHandler
 from bleach import clean
 from dotenv import load_dotenv
+
+# Set up base directory for Replit compatibility
+if 'REPL_ID' in os.environ:
+    # We're running on Replit
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if not os.path.exists(os.path.join(BASE_DIR, 'data')):
+        os.makedirs(os.path.join(BASE_DIR, 'data'))
+    os.environ['DATABASE_PATH'] = os.path.join(BASE_DIR, 'data', 'eda_agent.db')
+    print(f"Running on Replit. Database path: {os.environ['DATABASE_PATH']}")
 
 # Load environment variables
 load_dotenv()
