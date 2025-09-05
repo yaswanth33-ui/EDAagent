@@ -1,0 +1,32 @@
+services:
+  # A web service
+  - type: web
+    name: edaagent
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: cd server && gunicorn --config ../gunicorn.conf.py app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: PYTHON_VERSION
+        value: 3.12.4
+      - key: SECRET_KEY
+        fromDatabase:
+          name: edaagent_env
+          property: secret_key
+      - key: OPENROUTER_API_KEY
+        fromDatabase:
+          name: edaagent_env
+          property: openrouter_api_key
+      - key: AIML_API_KEY
+        fromDatabase:
+          name: edaagent_env
+          property: aiml_api_key
+
+databases:
+  - name: edaagent_env
+    databaseName: edaagent_env
+    user: edaagent_user
+    plan: free
