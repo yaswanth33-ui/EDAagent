@@ -13,20 +13,12 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.4
       - key: SECRET_KEY
-        fromDatabase:
-          name: edaagent_env
-          property: secret_key
+        sync: false  # Will be manually set during deployment
       - key: OPENROUTER_API_KEY
-        fromDatabase:
-          name: edaagent_env
-          property: openrouter_api_key
+        sync: false  # Will be manually set during deployment
       - key: AIML_API_KEY
-        fromDatabase:
-          name: edaagent_env
-          property: aiml_api_key
+        sync: false  # Will be manually set during deployment
 
 databases:
-  - name: edaagent_env
-    databaseName: edaagent_env
-    user: edaagent_user
+  - name: edaagent_db
     plan: free
