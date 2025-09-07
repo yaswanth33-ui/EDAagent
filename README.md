@@ -209,22 +209,21 @@ The application is containerized and can be deployed on any cloud platform that 
 
 ```
 EDAagent/
+├── data/                   # Database storage
+├── frontend/
+│   ├── static/             # Static assets
+│   │   └── plots/          # Generated visualizations
+│   └── templates/          # HTML templates
 ├── server/
-│   ├── static/plots/        # Generated visualizations
-│   ├── templates/           # HTML templates
-│   ├── uploads/             # Uploaded files
+│   ├── uploads/            # Uploaded files
 │   ├── app.py              # Main Flask application
 │   ├── database.py         # Database operations
 │   ├── utils.py            # Utility functions
 │   └── .env                # Environment variables
+├── tests/                  # Test files
 ├── requirements.txt        # Python dependencies
-├── Dockerfile             # Container configuration
-├── docker-compose.yml     # Docker Compose config
-├── gunicorn.conf.py       # Gunicorn configuration
-├── Procfile              # Heroku configuration
-├── deploy.sh             # Linux/Mac deployment script
-├── deploy.bat            # Windows deployment script
-└── README.md             # This file
+├── gunicorn.conf.py        # Gunicorn configuration
+└── README.md               # This file
 ```
 
 ## Configuration

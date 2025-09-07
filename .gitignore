@@ -230,9 +230,20 @@ venv.bak/
 
 # Project specific
 server/static/plots/
-eda_agent.db
+data/*
+!data/.gitkeep
+*.db
 *.png
 *.jpg
 *.jpeg
 *.gif
 *.ico
+
+# Deployment configs
+.dockerignore
+Dockerfile
+docker-compose.yml
+deploy.*
+render.yaml
+Procfile
+runtime.txt

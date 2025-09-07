@@ -1,0 +1,2 @@
+# This file ensures the data directory exists but its contents won't be committed
+# Database files will be stored in this directory
